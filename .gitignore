@@ -1,0 +1,6 @@
+# eclipse
+.classpath
+.project
+*.class
+bin/
+.settings/
