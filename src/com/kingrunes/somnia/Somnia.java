@@ -42,7 +42,7 @@ public class Somnia
 	@Instance
 	public static Somnia instance;
 	
-	@SidedProxy(serverSide="com.kingrunes.somnia.CommonProxy", clientSide="com.kingrunes.somnia.client.ClientProxy")
+	@SidedProxy(serverSide="com.kingrunes.somnia.common.CommonProxy", clientSide="com.kingrunes.somnia.client.ClientProxy")
 	public static CommonProxy proxy;
 	
 	public static FMLEventChannel channel;
