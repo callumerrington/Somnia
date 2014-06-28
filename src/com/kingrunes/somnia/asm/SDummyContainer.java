@@ -16,7 +16,7 @@ public class SDummyContainer extends DummyModContainer
 		ModMetadata meta = super.getMetadata();
 		meta.modId = "SomniaCore";
 		meta.name = "SomniaCore";
-		meta.version = "1.1.0"; //String.format("%d.%d.%d.%d", majorVersion, minorVersion, revisionVersion, buildVersion);
+		meta.version = "1.1.1";
 		meta.authorList = Arrays.asList("Kingrunes");
 		meta.description = "This mod modifies Minecraft to allow Somnia to hook in";
 		meta.url = "";
