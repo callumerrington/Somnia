@@ -148,7 +148,7 @@ public class PacketHandler
         try
         {
         	bbos.writeByte(0x02);
-        	bbos.writeInt(fields.length);
+        	bbos.writeInt(fields.length/2);
         	for (int i=0; i<fields.length; i++)
         	{
         		StreamUtils.writeString(fields[i].toString(), bbos);
