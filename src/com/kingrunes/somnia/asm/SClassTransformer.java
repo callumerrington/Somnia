@@ -11,6 +11,7 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
@@ -27,14 +28,10 @@ public class SClassTransformer implements IClassTransformer
 			return patchEntityRenderer(bytes, false);
 		else if (name.equalsIgnoreCase("bll"))
 			return patchEntityRenderer(bytes, true);
-		
-		/*else if (name.equalsIgnoreCase("net.minecraft.world.WorldServer"))
+		else if (name.equalsIgnoreCase("net.minecraft.world.WorldServer"))
 			return patchWorldServer(bytes, false);
-		else if (name.equalsIgnoreCase("js"))
+		else if (name.equalsIgnoreCase("mj"))
 			return patchWorldServer(bytes, true);
-		else if (name.equalsIgnoreCase("abw"))
-			return patchWorld(bytes);
-		*/
 		return bytes;
 	}
 
@@ -118,68 +115,52 @@ public class SClassTransformer implements IClassTransformer
         return cw.toByteArray();
 	}
 	
-	/*
+	
 	private byte[] patchWorldServer(byte[] bytes, boolean obf)
 	{
-		String methodName = obf ? "b" : "tick";
-		String methodName2 = obf ? "g" : "tickBlocksAndAmbiance";
-		String methodName3 = obf ? "a" : "moodSoundAndLightCheck";
+		String 	methodTick = obf ? "b" : "tick",
+				methodGetGameRule = obf ? "b" : "getGameRuleBooleanValue";
+		
 		ClassNode classNode = new ClassNode();
         ClassReader classReader = new ClassReader(bytes);
         classReader.accept(classNode, 0);
 
         Iterator<MethodNode> methods = classNode.methods.iterator();
         AbstractInsnNode ain;
-        MethodInsnNode min;
         while(methods.hasNext())
         {
         	MethodNode m = methods.next();
-        	if (m.name.equals(methodName) && m.desc.equalsIgnoreCase("()V"))
+        	if (m.name.equals(methodTick) && m.desc.equals("()V"))
         	{
         		Iterator<AbstractInsnNode> iter = m.instructions.iterator();
-        		LdcInsnNode lin;
+        		MethodInsnNode min;
         		while (iter.hasNext())
         		{
         			ain = iter.next();
-        			if (ain instanceof LdcInsnNode)
+        			if (ain instanceof MethodInsnNode)
         			{
-        				lin = (LdcInsnNode)ain;
-        				if (lin.cst.equals("doMobSpawning"))
+        				min = (MethodInsnNode)ain;
+        				if (min.name.equals(methodGetGameRule) && min.desc.equals("(Ljava/lang/String;)Z"))
         				{
-        					int index = m.instructions.indexOf(lin);
-        					m.instructions.remove(ain);
-        					m.instructions.remove(m.instructions.get(index-1));
+        					int index = m.instructions.indexOf(min);
         					
-        					min = (MethodInsnNode)m.instructions.get(index-1);
-        					
-        					min.setOpcode(Opcodes.INVOKESTATIC);
-        					min.desc = "(Lnet/minecraft/world/WorldServer;)Z";
-        					min.name = "doMobSpawning";
-        					min.owner = "com/kingrunes/somnia/Somnia";
+        					LdcInsnNode lin = (LdcInsnNode)m.instructions.get(index-1);
+        					if (lin.cst.equals("doMobSpawning"))
+        					{
+	        					min.setOpcode(Opcodes.INVOKESTATIC);
+	        					min.desc = "(Lnet/minecraft/world/WorldServer;)Z";
+	        					min.name = "doMobSpawning";
+	        					min.owner = "com/kingrunes/somnia/Somnia";
+	        					
+	        					m.instructions.remove(lin);
+	        					m.instructions.remove(m.instructions.get(index-2));
+	        					break;
+        					}
         				}
         			}
         		}
+        		break;
             }
-        	else if (m.name.equals(methodName2) && m.desc.equalsIgnoreCase("()V"))
-        	{
-        		Iterator<AbstractInsnNode> iter = m.instructions.iterator();
-	     		while (iter.hasNext())
-	     		{
-	     			ain = iter.next();
-	     			if (ain instanceof MethodInsnNode)
-	     			{
-	     				min = (MethodInsnNode)ain;
-	     				if (min.name.equals(methodName3) && min.desc.startsWith("(IIL") && min.getOpcode() == Opcodes.INVOKEVIRTUAL)
-	     				{
-	     					min.setOpcode(Opcodes.INVOKESTATIC);
-	     					min.name = "moodSoundAndLightCheck";
-	     					min.owner = "com/kingrunes/somnia/Somnia";
-	     					
-	     					m.instructions.remove(m.instructions.get(m.instructions.indexOf(min)-4));
-	     				}
-	     			}
-         		}
-    		}
         }
         
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
@@ -187,6 +168,7 @@ public class SClassTransformer implements IClassTransformer
         return cw.toByteArray();
 	}
 	
+	/*
 	private byte[] patchWorld(byte[] bytes)
 	{
 		String methodName = "a";
