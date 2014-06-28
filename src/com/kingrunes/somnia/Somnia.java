@@ -32,7 +32,7 @@ public class Somnia
 {
 	public static final String MOD_ID = "Somnia";
 	public static final String NAME = "Somnia";
-	public static final String VERSION = "1.1.0";
+	public static final String VERSION = "1.1.1";
 	
 	public Configuration config;
 	public List<ServerTickHandler> tickHandlers;
@@ -57,6 +57,7 @@ public class Somnia
 	@EventHandler
     public void preInit(FMLPreInitializationEvent event)
 	{
+		event.getModMetadata().version = VERSION;
         proxy.configure(event.getSuggestedConfigurationFile());
     }
 	
