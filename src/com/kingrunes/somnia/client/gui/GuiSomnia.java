@@ -85,7 +85,6 @@ public class GuiSomnia extends GuiSleepMP
 			(
 				fontRendererObj,
 				String.format(SPEED_FORMAT, getColorStringForSpeed(speed), speed),
-//				Somnia.timeStringForWorldTime(mc.theWorld.getTotalWorldTime()), // Here for testing time sync
 				5,
 				5,
 				Integer.MIN_VALUE

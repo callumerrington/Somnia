@@ -7,29 +7,19 @@ import java.lang.reflect.Method;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.launchwrapper.Launch;
 
-/*
- * Enjoy this collection of hacky implementations
- */
 public class ClassUtils
 {
 	private static Boolean mcp = null;
 	
-	public static boolean runningMCP()
+	public static boolean deobfuscatedEnvironment()
 	{
 		if (mcp == null)
 		{
-			try
-			{
-				EntityPlayer.class.getDeclaredField("sleeping");
-				mcp = true;
-			}
-			catch (NoSuchFieldException nsfe)
-			{
-				mcp = false;
-			}
+			mcp = (boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
 			
-			System.out.println("[Somnia] Running in an " + (mcp ? "deobfuscated" : "obfuscated") + " environment!");
+			System.out.println("[Somnia] Running in a" + (mcp ? " deobfuscated" : "n obfuscated") + " environment!");
 		}
 		
 		return mcp;
@@ -39,7 +29,7 @@ public class ClassUtils
 	{
 		try
 		{
-			Field field = EntityPlayer.class.getDeclaredField(runningMCP() ? DEOBF_ENTITY_PLAYER_SLEEP_TIMER : OBF_ENTITY_PLAYER_SLEEP_TIMER);
+			Field field = EntityPlayer.class.getDeclaredField(deobfuscatedEnvironment() ? DEOBF_ENTITY_PLAYER_SLEEP_TIMER : OBF_ENTITY_PLAYER_SLEEP_TIMER);
 			field.setAccessible(true);
 			field.set(player, time);
 		}
@@ -53,7 +43,7 @@ public class ClassUtils
 	{
 		try
 		{
-			Field field = EntityPlayer.class.getDeclaredField(runningMCP() ? DEOBF_ENTITY_PLAYER_SLEEPING : OBF_ENTITY_PLAYER_SLEEPING);
+			Field field = EntityPlayer.class.getDeclaredField(deobfuscatedEnvironment() ? DEOBF_ENTITY_PLAYER_SLEEPING : OBF_ENTITY_PLAYER_SLEEPING);
 			field.setAccessible(true);
 			field.set(player, state);
 		}
@@ -67,7 +57,7 @@ public class ClassUtils
 	{
 		try
 		{
-			Method method = Entity.class.getDeclaredMethod(runningMCP() ? DEOBF_ENTITY_SET_SIZE : OBF_ENTITY_SET_SIZE, float.class, float.class);
+			Method method = Entity.class.getDeclaredMethod(deobfuscatedEnvironment() ? DEOBF_ENTITY_SET_SIZE : OBF_ENTITY_SET_SIZE, float.class, float.class);
 			method.setAccessible(true);
 			method.invoke(player, f1, f2);
 		}

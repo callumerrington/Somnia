@@ -77,26 +77,15 @@ public class Somnia
 		}
 	}
 	
-	public int countMultipliedTickHandlers()
-	{
-		int i = 0;
-		for (ServerTickHandler serverTickHandler : tickHandlers)
-			if (serverTickHandler.mbCheck)
-				i++;
-		return i;
-	}
-	
 	/*
 	 * Returns 1 if sleep is not allowed at the given worldServer's world time, 0 if everyone is sleeping, -1 otherwise.
 	 */
 	public int allPlayersSleeping(WorldServer worldServer)
 	{
-		boolean allSleeping = allPlayersSleeping(worldServer.playerEntities);
-		
 		if (!proxy.validSleepPeriod.isTimeWithin(worldServer.getWorldTime() % 24000))
 			return 1;
 		
-		return allSleeping ? 0 : -1;
+		return allPlayersSleeping(worldServer.playerEntities) ? 0 : -1;
 	}
 	
 	private boolean allPlayersSleeping(List<?> playerEntities)

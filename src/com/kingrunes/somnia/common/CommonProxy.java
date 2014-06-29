@@ -162,6 +162,9 @@ public class CommonProxy
 		onSleep(event);
 	}
 	
+	/*
+	 * This method reimplements the entire sleep checking logic, look away
+	 */
 	public void onSleep(PlayerSleepInBedEvent event)
 	{
 		if (event.result != null && event.result != EnumStatus.OK)
@@ -205,8 +208,7 @@ public class CommonProxy
 	            double d0 = 8.0D;
 	            double d1 = 5.0D;
 	            
-	            @SuppressWarnings("deprecation")
-				List<?> list = event.entityPlayer.worldObj.getEntitiesWithinAABB(EntityMob.class, AxisAlignedBB.getAABBPool().getAABB((double)event.x - d0, (double)event.y - d1, (double)event.z - d0, (double)event.x + d0, (double)event.y + d1, (double)event.z + d0));
+				List<?> list = event.entityPlayer.worldObj.getEntitiesWithinAABB(EntityMob.class, AxisAlignedBB.getBoundingBox((double)event.x - d0, (double)event.y - d1, (double)event.z - d0, (double)event.x + d0, (double)event.y + d1, (double)event.z + d0));
 	
 	            if (!list.isEmpty())
 	            {

@@ -20,8 +20,6 @@ public class ClientTickHandler
 	private boolean muted = false;
 	private float defVol;
 	
-	private boolean disabledWorldRendering = true;
-	
 	@SubscribeEvent
 	public void onClientTick(TickEvent.ClientTickEvent event)
 	{
@@ -59,8 +57,7 @@ public class ClientTickHandler
 		else if (moddedFOV)
 		{
 			moddedFOV = false;
-			if (fov > 0)
-				Minecraft.getMinecraft().gameSettings.fovSetting = fov;
+			Minecraft.getMinecraft().gameSettings.fovSetting = fov;
 		}
 		
 		/*
@@ -79,9 +76,6 @@ public class ClientTickHandler
 					gameSettings.setSoundLevel(SoundCategory.MASTER, .0f);
 				}
 			}
-			
-			if (Somnia.proxy.disableRendering)
-				disabledWorldRendering = true;
 		}
 		else
 		{
@@ -90,19 +84,10 @@ public class ClientTickHandler
 				muted = false;
 				gameSettings.setSoundLevel(SoundCategory.MASTER, defVol);
 			}
-			
-			if (disabledWorldRendering)
-				disabledWorldRendering = false;
 		}
-		
-		/*
-		 * Auto wakes when the time is matched but wasn't matched on a previous tick. Otherwise we wouldn't be able to set wake times for the next day
-		 * as it'd trigger the auto wake immediately.
-		 */
 		
 		if (Somnia.clientAutoWakeTime > -1 && mc.theWorld.getTotalWorldTime() >= Somnia.clientAutoWakeTime)
 		{
-//			System.out.println("AUTO WAKING @ " + Somnia.clientAutoWakeTime % 24000);
 			Somnia.clientAutoWakeTime = -1;
 			mc.thePlayer.sendQueue.addToSendQueue(new C0BPacketEntityAction(mc.thePlayer, 3));
 		}
