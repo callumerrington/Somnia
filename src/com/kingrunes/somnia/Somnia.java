@@ -1,20 +1,25 @@
 package com.kingrunes.somnia;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.opengl.GL11;
-
-import scala.NotImplementedError;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.config.Configuration;
 
+import org.lwjgl.opengl.GL11;
+
+import scala.NotImplementedError;
+
 import com.kingrunes.somnia.common.CommonProxy;
 import com.kingrunes.somnia.common.PacketHandler;
+import com.kingrunes.somnia.common.util.ListUtils;
 import com.kingrunes.somnia.server.ServerTickHandler;
+import com.kingrunes.somnia.server.SomniaCommand;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -22,6 +27,7 @@ import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.FMLEventChannel;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
@@ -35,7 +41,9 @@ public class Somnia
 	public static final String VERSION = "1.1.1";
 	
 	public Configuration config;
+	
 	public List<ServerTickHandler> tickHandlers;
+	public List<WeakReference<EntityPlayerMP>> ignoreList;
 	
 	@Instance
 	public static Somnia instance;
@@ -50,6 +58,7 @@ public class Somnia
 	public Somnia()
 	{
 		this.tickHandlers = new ArrayList<ServerTickHandler>();
+		this.ignoreList = new ArrayList<WeakReference<EntityPlayerMP>>();
 	}
 	
 	@EventHandler
@@ -66,6 +75,17 @@ public class Somnia
 		channel.register(new PacketHandler());
 		
 		proxy.register();
+	}
+	
+	@EventHandler
+	public void onServerStarting(FMLServerStartingEvent event)
+	{
+		event.registerServerCommand(new SomniaCommand());
+	}
+	
+	public void overridePlayer(EntityPlayerMP player) 
+	{
+		ignoreList.add(new WeakReference<EntityPlayerMP>(player));
 	}
 	
 	public void tick()
@@ -95,7 +115,8 @@ public class Somnia
 		
 		for (Object obj : playerEntities)
 		{
-			if (!((EntityPlayer)obj).isPlayerSleeping())
+			EntityPlayerMP player = (EntityPlayerMP)obj;
+			if (!player.isPlayerSleeping() && ListUtils.getWeakRef(player, ignoreList) == null)
 				return false;
 		}
 		
