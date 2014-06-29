@@ -19,14 +19,20 @@ import cpw.mods.fml.common.network.internal.FMLProxyPacket;
 
 public class ServerTickHandler
 {
+	private static int activeTickHandlers = 0;
+	
 	public WorldServer worldServer;
-	private int checkTimer = 0;
-	public boolean mbCheck = false;
-	private int miCheck = -2;
-	private double overflow = 0d;
-	private int tps;
-	private int currentSleepPeriod;
-	private double multiplier = 1.0d;
+
+	private int 	miCheck 			= -2; 		// (See Somnia.allPlayersSleeping)
+	public 	boolean mbCheck 			= false;	// All players sleeping? miCheck >= 0 (see tickStart)
+	
+	private long 	currentSleepPeriod, 			// Incremented while mbCheck is true, reset when state is changed
+					checkTimer 			= 0, 		// Used to schedule GUI update packets and sleep state checks
+					lastTpsMillis		= 0,
+					liTps 				= 0, 		// Counts ticks
+					tps					= 0;		// Set per second to liTPS, used to work out actual multiplier to send to clients
+	
+	private double multiplier = Somnia.proxy.baseMultiplier;
 	
 	public ServerTickHandler(WorldServer worldServer)
 	{
@@ -35,12 +41,8 @@ public class ServerTickHandler
 	
 	public void tickStart()
 	{
-		liTPS++;
-		currentSleepPeriod++;
+		incrementCounters();
 	
-		if (Somnia.instance.serverTicking)
-			return;
-		
 		checkTimer++;
 		
 		if (checkTimer == 10)
@@ -51,7 +53,13 @@ public class ServerTickHandler
 			mbCheck = miCheck >= 0;
 			
 			if (lbCheck != mbCheck)
+			{
 				currentSleepPeriod = 0;
+				if (miCheck == 0)
+					activeTickHandlers++;
+				else
+					activeTickHandlers--;
+			}
 			
 			if (miCheck < 1)
 			{
@@ -73,17 +81,14 @@ public class ServerTickHandler
 			{
 				FMLProxyPacket packet = PacketHandler.buildGUIClosePacket();
 				
-				IChatComponent chatComponent = new ChatComponentText(miCheck == 1 ? "Something is keeping you awake!" : "You can't sleep forever!");
-				synchronized (sleepingPlayers)
+				IChatComponent chatComponent = new ChatComponentText(miCheck == 1 ? "Something is keeping you awake!" : "You can't sleep forever!"); //TODO: Localization
+				Iterator<EntityPlayer> iter = sleepingPlayers.iterator();
+				EntityPlayer ep;
+				while (iter.hasNext())
 				{
-					Iterator<EntityPlayer> iter = sleepingPlayers.iterator();
-					EntityPlayer ep;
-					while (iter.hasNext())
-					{
-						ep = iter.next();
-						Somnia.channel.sendTo(packet, (EntityPlayerMP) ep);
-						ep.addChatMessage(chatComponent);
-					}
+					ep = iter.next();
+					Somnia.channel.sendTo(packet, (EntityPlayerMP) ep);
+					ep.addChatMessage(chatComponent);
 				}
 				
 				mbCheck = false;
@@ -95,41 +100,36 @@ public class ServerTickHandler
 			
 			if (miCheck == 1)
 				miCheck = -2;
-			
+
 			doMultipliedTicking();
 		}
 	}
 	
-	private long mlMs = 0l, mlMs1 = -1;
-	private int liTPS = 0;
+	private void incrementCounters()
+	{
+		liTps++;
+		if (mbCheck)
+			currentSleepPeriod++;
+	}
+	
+	private double overflow = .0d;
 	private void doMultipliedTicking()
 	{
-		if (mlMs1 < 0)
-			mlMs1 = System.currentTimeMillis();
+		// We can't run 0.5 of a tick,
+		//so we floor the multiplier and store the difference as overflow to be ran on the next tick
+		int liMultiplier = (int) Math.floor(multiplier);
+		double target = liMultiplier + overflow;
+		int liTarget = (int) Math.floor(target);
+		overflow = target - liTarget;
 		
-		Somnia.instance.serverTicking = true;
-		
-		long ms = 0, ms1 = System.currentTimeMillis();
-		
-		int a = 1;
-		int b = (int) multiplier + (int) overflow;
-		overflow -= (int) overflow;
-		for (; a<b; a++)
-		{
+		long nanoTime = System.nanoTime();
+		for (int i=0; i<liTarget; i++)
 			doMultipliedServerTicking();
-			ms += System.currentTimeMillis() - ms1;
-			ms1 = System.currentTimeMillis();
-		}
-		overflow += b-a;
 		
-		if (ms > 50/Somnia.instance.countMultipliedTickHandlers())
-		{
-			multiplier -= .1d;
-		}
-		else
-		{
+		if (nanoTime > 50.0d/activeTickHandlers)
 			multiplier += .1d;
-		}
+		else
+			multiplier -= .1d;
 		
 		if (multiplier > Somnia.proxy.multiplierCap)
 			multiplier = Somnia.proxy.multiplierCap;
@@ -137,18 +137,13 @@ public class ServerTickHandler
 		if (multiplier < Somnia.proxy.baseMultiplier)
 			multiplier = Somnia.proxy.baseMultiplier;
 		
-		Somnia.instance.serverTicking = false;
-		
-		mlMs += System.currentTimeMillis()-mlMs1;
-		mlMs1 = System.currentTimeMillis();
-		
-		if (mlMs > 1000)
+		long currentTimeMillis = System.currentTimeMillis();
+		if (currentTimeMillis-lastTpsMillis > 1000)
 		{
-			mlMs -= 1000;
-			tps = liTPS;
-			liTPS = 0;
+			tps = liTps;
+			liTps = 0;
+			lastTpsMillis = currentTimeMillis;
 		}
-		
 	}
 	
 	private void doMultipliedServerTicking()
@@ -157,6 +152,6 @@ public class ServerTickHandler
 		worldServer.updateEntities();
 		worldServer.getEntityTracker().updateTrackedEntities();
 		MinecraftServer.getServer().getConfigurationManager().sendPacketToAllPlayersInDimension(new S03PacketTimeUpdate(worldServer.getTotalWorldTime(), worldServer.getWorldTime(), worldServer.getGameRules().getGameRuleBooleanValue("doDaylightCycle")), worldServer.provider.dimensionId);
-		tickStart();
+		incrementCounters();
 	}
 }

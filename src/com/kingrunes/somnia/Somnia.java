@@ -37,8 +37,6 @@ public class Somnia
 	public Configuration config;
 	public List<ServerTickHandler> tickHandlers;
 	
-	public boolean serverTicking = false;
-	
 	@Instance
 	public static Somnia instance;
 	
