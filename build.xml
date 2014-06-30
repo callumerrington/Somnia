@@ -17,8 +17,18 @@
   <property name="dist"  location="dist" />
   <property name="forge_src"  location="${forge}/src/main/java" />
   <property name="forge_dist"  location="${forge}/build/libs" />
-
+ 
   <target name="init">
+  
+	<!-- OS detection -->
+	<condition property="isWindows">
+		<os family="windows" />
+	</condition>
+
+	<condition property="isUnix">
+		<os family="unix" />
+	</condition>
+  
 	<!-- Copy source from eclipse project to Forge gradle staging area -->
     <copy todir="${forge_src}">
 		<fileset dir="${src}" />
@@ -64,7 +74,7 @@
     ]]></script>
   </target>
 
-  <target name="gradle_build" depends="init" description="build with gradle">
+  <target name="gradle_build_win" depends="init" if="isWindows" description="build with gradle">
 	<!-- Run gradle's build task -->
     <exec dir="${forge}" executable="cmd">
 		<arg value="/c" />
@@ -73,9 +83,15 @@
 	</exec>
   </target>
   
-  <target name="gradle_dist" depends="gradle_build" description="create distributable">
-	<!-- ignore the duplicated strings here -->
-	<!--<copy file="${forge_dist}/modid-1.0.jar" tofile="${dist}/${ant.project.name}-${major_version}.${minor_version}.${revision_version}.${build_number}.jar" />-->
+  <target name="gradle_build_unix" depends="init" if="isUnix" description="build with gradle">
+	<!-- Run gradle's build task -->
+    <exec dir="${forge}" executable="${forge}/gradlew">
+		<arg value="build" />
+	</exec>
+  </target>
+  
+  <target name="gradle_dist" depends="gradle_build_win, gradle_build_unix" description="create distributable">
+	<delete file="${dist}/${ant.project.name}-${major_version}.${minor_version}.${revision_version}.${build_number}.jar" />
 	<jar destfile="${dist}/${ant.project.name}-${major_version}.${minor_version}.${revision_version}.${build_number}.jar" basedir="${basedir}" includes="mcmod.info">
 		<zipfileset src="${forge_dist}/modid-1.0.jar" excludes="mcmod.info" />
 		<manifest>
