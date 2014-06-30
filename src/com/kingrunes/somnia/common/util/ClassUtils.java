@@ -17,7 +17,7 @@ public class ClassUtils
 	{
 		if (mcp == null)
 		{
-			mcp = (boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
+			mcp = (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
 			
 			System.out.println("[Somnia] Running in a" + (mcp ? " deobfuscated" : "n obfuscated") + " environment!");
 		}
