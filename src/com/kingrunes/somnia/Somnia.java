@@ -33,12 +33,12 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-@Mod(modid = Somnia.MOD_ID, name = Somnia.NAME, version = Somnia.VERSION)
+@Mod(modid = Somnia.MOD_ID, name = Somnia.NAME)
 public class Somnia
 {
 	public static final String MOD_ID = "Somnia";
 	public static final String NAME = "Somnia";
-	public static final String VERSION = "1.1.1";
+	public static final String VERSION = SomniaVersion.getVersionString();
 	
 	public Configuration config;
 	

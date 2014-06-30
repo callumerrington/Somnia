@@ -3,6 +3,7 @@ package com.kingrunes.somnia.asm;
 import java.util.Arrays;
 
 import com.google.common.eventbus.EventBus;
+import com.kingrunes.somnia.SomniaVersion;
 
 import cpw.mods.fml.common.DummyModContainer;
 import cpw.mods.fml.common.LoadController;
@@ -16,7 +17,7 @@ public class SDummyContainer extends DummyModContainer
 		ModMetadata meta = super.getMetadata();
 		meta.modId = "SomniaCore";
 		meta.name = "SomniaCore";
-		meta.version = "1.1.1";
+		meta.version = SomniaVersion.getCoreVersionString();
 		meta.authorList = Arrays.asList("Kingrunes");
 		meta.description = "This mod modifies Minecraft to allow Somnia to hook in";
 		meta.url = "";

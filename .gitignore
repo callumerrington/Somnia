@@ -4,3 +4,7 @@
 *.class
 bin/
 .settings/
+
+# build
+dist/
+*.jar

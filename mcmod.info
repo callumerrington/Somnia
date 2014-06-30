@@ -1,0 +1,16 @@
+[
+{
+  "modid": "Somnia",
+  "name": "Somnia",
+  "description": "Somnia simulates the world while you sleep.",
+  "version": "",
+  "mcversion": "1.7.2",
+  "url": "http://www.minecraftforum.net/topic/1938500-164forgesmp-somnia-simulating-the-world-while-you-sleep/",
+  "updateUrl": "",
+  "authorList": ["Kingrunes"],
+  "credits": "Kingrunes",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
