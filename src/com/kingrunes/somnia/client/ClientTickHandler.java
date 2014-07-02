@@ -57,7 +57,8 @@ public class ClientTickHandler
 		else if (moddedFOV)
 		{
 			moddedFOV = false;
-			Minecraft.getMinecraft().gameSettings.fovSetting = fov;
+			if (fov > .0f)
+				Minecraft.getMinecraft().gameSettings.fovSetting = fov;
 		}
 		
 		/*
