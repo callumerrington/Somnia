@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.C0BPacketEntityAction;
+import net.minecraft.util.ChatComponentTranslation;
 
 import org.lwjgl.opengl.GL11;
 
@@ -24,7 +25,8 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class GuiSomnia extends GuiSleepMP
 {
-	public static final String	SPEED_FORMAT = "%sx%s";
+	public static final String	TRANSLATION_FORMAT = "somnia.status.%s",
+								SPEED_FORMAT = "%sx%s";
 	
 	public static final String 	COLOR = new String(new char[]{ (char)167 }),
 								BLACK = COLOR+"0",
@@ -91,12 +93,13 @@ public class GuiSomnia extends GuiSleepMP
 			);
 		}
 		glPopMatrix();
-		boolean b = status.length() != 5; // cheap way of saying '!status.equals("Waiting...")'
+		
+		boolean b = status.length() != 5; // cheap way of testing if the string is a time string
 		drawString(
 				fontRendererObj,
 				WHITE+status,
-				b ? this.width / 2 : this.width - (this.width / 5) + 18,
-				this.height / (b?4:2),
+				b ? this.width/2 - fontRendererObj.getStringWidth(status)/2 : this.width - (this.width / 5) + 18,
+				this.height / (b?8:2),
 				Integer.MIN_VALUE
 				);
     }
@@ -104,13 +107,12 @@ public class GuiSomnia extends GuiSleepMP
 	public void updateField(String field, DataInputStream in) throws IOException
 	{
 		if (field.equalsIgnoreCase("status"))
-			status = StreamUtils.readString(in);
+		{
+			String str = StreamUtils.readString(in);
+			status = str.startsWith("f:") ? new ChatComponentTranslation(String.format(TRANSLATION_FORMAT, str.substring(2).toLowerCase()), new Object[0]).getUnformattedTextForChat() : str;
+		}
 		else if (field.equalsIgnoreCase("speed"))
 			speed = in.readDouble();
-		else if (field.equalsIgnoreCase("sleeping"))
-			sleeping = in.readInt();
-		else if (field.equalsIgnoreCase("awake"))
-			awake = in.readInt();
 	}
 	
 	public static byte[] getColorForSpeed(double speed)

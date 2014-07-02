@@ -34,22 +34,25 @@ public class CommonProxy
 {
 	private static final int CONFIG_VERSION = 1;
 	
-	public TimePeriod enterSleepPeriod;
-	public TimePeriod validSleepPeriod;
-	public long maxSleepTimePeriod;
-	public double baseMultiplier;
-	public double multiplierCap;
-	public boolean tpsGraph;
-	public int secondsOnGraph;
-	public boolean sleepWithArmor;
-	public boolean vanillaBugFixes;
-	public boolean fading;
-	public boolean somniaGui;
-	public boolean muteSoundWhenSleeping;
-	public boolean ignoreMonsters;
-	public boolean disableCreatureSpawning;
-	public boolean disableRendering;
-	public boolean disableMoodSoundAndLightCheck;
+	public TimePeriod 	enterSleepPeriod;
+	public TimePeriod 	validSleepPeriod;
+	
+	public long 		maxSleepTimePeriod,
+						sleepCooldown;
+	
+	public double 		baseMultiplier,
+						multiplierCap;
+	public boolean 		tpsGraph,
+						secondsOnGraph,
+						sleepWithArmor,
+						vanillaBugFixes,
+						fading,
+						somniaGui,
+						muteSoundWhenSleeping,
+						ignoreMonsters,
+						disableCreatureSpawning,
+						disableRendering,
+						disableMoodSoundAndLightCheck;
 	
 	public void configure(File file)
 	{
@@ -62,45 +65,50 @@ public class CommonProxy
 		config.load();
 		
 		config.get(Configuration.CATEGORY_GENERAL, "configVersion", CONFIG_VERSION);
-		
+
+		/*
+		 * Timings
+		 */
 		enterSleepPeriod =
 				new TimePeriod(
 						config.get("timings", "enterSleepStart", 0).getInt(),
 						config.get("timings", "enterSleepEnd", 24000).getInt()
 						);
-		
 		validSleepPeriod =
 				new TimePeriod(
 						config.get("timings", "validSleepStart", 0).getInt(),
 						config.get("timings", "validSleepEnd", 24000).getInt()
 						);
-		
 		maxSleepTimePeriod = config.get("timings", "maxSleepTime", 24000).getInt();
+		sleepCooldown = config.get("timings", "sleepCooldown", 12000).getInt();
 		
+		/*
+		 * Logic
+		 */
 		baseMultiplier = config.get("logic", "baseMultiplier", 1.0d).getDouble(1.0d);
-		
 		multiplierCap = config.get("logic", "multiplierCap", 100.0d).getDouble(100.0d);
 		
+		/*
+		 * Profiling (Not implemented)
 		secondsOnGraph = config.get("profiling", "secondsOnGraph", 30).getInt();
-		
 		tpsGraph = config.get("profiling", "tpsGraph", false).getBoolean(false);
+		*/
 		
+		/*
+		 * Options
+		 */
 		sleepWithArmor = config.get("options", "sleepWithArmor", false).getBoolean(false);
-		
 		vanillaBugFixes = config.get("options", "vanillaBugFixes", true).getBoolean(true);
-		
 		fading = config.get("options", "fading", true).getBoolean(true);
-		
 		somniaGui = config.get("options", "somniaGui", true).getBoolean(true);
-		
 		muteSoundWhenSleeping = config.get("options", "muteSoundWhenSleeping", false).getBoolean(false);
-		
 		ignoreMonsters = config.get("options", "ignoreMonsters", false).getBoolean(false);
-		
-		disableCreatureSpawning = config.get("performance", "disableCreatureSpawning", false).getBoolean(false);
-		
-		disableRendering = config.get("performance", "disableRendering", false).getBoolean(false);
 
+		/*
+		 * Performance
+		 */
+		disableCreatureSpawning = config.get("performance", "disableCreatureSpawning", false).getBoolean(false);
+		disableRendering = config.get("performance", "disableRendering", false).getBoolean(false);
 		disableMoodSoundAndLightCheck = config.get("performance", "disableMoodSoundAndLightCheck", false).getBoolean(false);
 		
 		config.save();
@@ -170,21 +178,21 @@ public class CommonProxy
 		if (event.result != null && event.result != EnumStatus.OK)
 			return;
 		
-		if (!enterSleepPeriod.isTimeWithin(event.entityPlayer.worldObj.getWorldTime() % 24000))
-		{
-			event.result = EnumStatus.NOT_POSSIBLE_NOW;
-			return;
-		}
-		
-		if (!sleepWithArmor && Somnia.doesPlayHaveAnyArmor(event.entityPlayer))
-		{
-			event.result = EnumStatus.OTHER_PROBLEM;
-			event.entityPlayer.addChatMessage(new ChatComponentText("That armor looks uncomfortable!"));
-			return;
-		}
-		
 		if (!event.entityPlayer.worldObj.isRemote)
         {
+			if (!enterSleepPeriod.isTimeWithin(event.entityPlayer.worldObj.getWorldTime() % 24000))
+			{
+				event.result = EnumStatus.NOT_POSSIBLE_NOW;
+				return;
+			}
+			
+			if (!sleepWithArmor && Somnia.doesPlayHaveAnyArmor(event.entityPlayer))
+			{
+				event.result = EnumStatus.OTHER_PROBLEM;
+				event.entityPlayer.addChatMessage(new ChatComponentText("That armor looks uncomfortable!"));
+				return;
+			}
+			
             if (event.entityPlayer.isPlayerSleeping() || !event.entityPlayer.isEntityAlive())
             {
             	event.result = EnumStatus.OTHER_PROBLEM;

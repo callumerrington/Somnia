@@ -1,0 +1,5 @@
+somnia.status.cooldown=You're not tired yet
+somnia.status.expired=You can't sleep forever
+somnia.status.not_now=Something is keeping you awake
+somnia.status.waiting=Waiting for server
+somnia.status.waiting_players=Waiting for other players to sleep

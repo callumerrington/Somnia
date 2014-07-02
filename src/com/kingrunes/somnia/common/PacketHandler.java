@@ -7,11 +7,13 @@ import io.netty.buffer.Unpooled;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-
-import com.kingrunes.somnia.Somnia;
+import java.util.HashMap;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
+
+import com.kingrunes.somnia.Somnia;
+
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.network.FMLNetworkEvent.ClientCustomPacketEvent;
 import cpw.mods.fml.common.network.FMLNetworkEvent.ServerCustomPacketEvent;
@@ -85,10 +87,15 @@ public class PacketHandler
 	/*
 	 * Building
 	 */
-	private static ByteBufOutputStream unpooled()
+	
+	// Cache
+	private static HashMap<Byte, FMLProxyPacket> cache;
+	
+	static
 	{
-		return new ByteBufOutputStream(Unpooled.buffer());
+		cache = new HashMap<Byte, FMLProxyPacket>();
 	}
+	//
 	
 	private static void close(OutputStream os)
 	{
@@ -101,6 +108,16 @@ public class PacketHandler
 	
 	public static FMLProxyPacket buildGUIOpenPacket()
 	{
+		FMLProxyPacket packet = cache.get(byteOf(0x00));
+		
+		if (packet == null)
+			cache.put(byteOf(0x00), packet=doBuildGUIOpenPacket());
+		
+		return packet;
+	}
+	
+	private static FMLProxyPacket doBuildGUIOpenPacket()
+	{
 		ByteBufOutputStream bbos = unpooled();
 		
         try
@@ -111,16 +128,25 @@ public class PacketHandler
         catch (IOException ioe)
         {
         	ioe.printStackTrace();
+        	throw new RuntimeException(ioe);
         }
         finally
         {
         	close(bbos);
         }
-        
-        return null;
 	}
 	
 	public static FMLProxyPacket buildGUIClosePacket()
+	{
+		FMLProxyPacket packet = cache.get(byteOf(0x01));
+		
+		if (packet == null)
+			cache.put(byteOf(0x01), packet=doBuildGUIOpenPacket());
+		
+		return packet;
+	}
+
+	public static FMLProxyPacket doBuildGUIClosePacket()
 	{
 		ByteBufOutputStream bbos = unpooled();
 		
@@ -132,13 +158,12 @@ public class PacketHandler
         catch (IOException ioe)
         {
         	ioe.printStackTrace();
+        	throw new RuntimeException(ioe);
         }
         finally
         {
         	close(bbos);
         }
-        
-        return null;
 	}
 	
 	public static FMLProxyPacket buildGUIUpdatePacket(Object... fields)
@@ -167,5 +192,18 @@ public class PacketHandler
         }
         
         return null;
+	}
+	
+	/*
+	 * Utils
+	 */
+	private static ByteBufOutputStream unpooled()
+	{
+		return new ByteBufOutputStream(Unpooled.buffer());
+	}
+	
+	public static Byte byteOf(int i)
+	{
+		return Byte.valueOf((byte)i);
 	}
 }

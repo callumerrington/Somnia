@@ -17,7 +17,7 @@ import scala.NotImplementedError;
 
 import com.kingrunes.somnia.common.CommonProxy;
 import com.kingrunes.somnia.common.PacketHandler;
-import com.kingrunes.somnia.common.util.ListUtils;
+import com.kingrunes.somnia.common.util.SomniaState;
 import com.kingrunes.somnia.server.ServerTickHandler;
 import com.kingrunes.somnia.server.SomniaCommand;
 
@@ -33,7 +33,7 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-@Mod(modid = Somnia.MOD_ID, name = Somnia.NAME)
+@Mod(modid = Somnia.MOD_ID, name = Somnia.NAME, version="-au")
 public class Somnia
 {
 	public static final String MOD_ID = "Somnia";
@@ -97,32 +97,6 @@ public class Somnia
 		}
 	}
 	
-	/*
-	 * Returns 1 if sleep is not allowed at the given worldServer's world time, 0 if everyone is sleeping, -1 otherwise.
-	 */
-	public int allPlayersSleeping(WorldServer worldServer)
-	{
-		if (!proxy.validSleepPeriod.isTimeWithin(worldServer.getWorldTime() % 24000))
-			return 1;
-		
-		return allPlayersSleeping(worldServer.playerEntities) ? 0 : -1;
-	}
-	
-	private boolean allPlayersSleeping(List<?> playerEntities)
-	{
-		if (playerEntities.isEmpty())
-			return false;
-		
-		for (Object obj : playerEntities)
-		{
-			EntityPlayerMP player = (EntityPlayerMP)obj;
-			if (!player.isPlayerSleeping() && ListUtils.getWeakRef(player, ignoreList) == null)
-				return false;
-		}
-		
-		return true;
-	}
-
 	public static String timeStringForWorldTime(long time)
 	{
 		time += 6000; // Tick -> Time offset
@@ -188,7 +162,7 @@ public class Somnia
 		for (ServerTickHandler serverTickHandler : instance.tickHandlers)
 		{
 			if (serverTickHandler.worldServer == par1WorldServer)
-				return !serverTickHandler.mbCheck;
+				return serverTickHandler.currentState != SomniaState.ACTIVE;
 		}
 		
 		throw new NotImplementedError("tickHandlers doesn't contain match for given world server");
