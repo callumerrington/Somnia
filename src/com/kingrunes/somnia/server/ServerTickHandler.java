@@ -1,5 +1,11 @@
 package com.kingrunes.somnia.server;
 
+import static com.kingrunes.somnia.common.util.SomniaState.ACTIVE;
+import static com.kingrunes.somnia.common.util.SomniaState.COOLDOWN;
+import static com.kingrunes.somnia.common.util.SomniaState.EXPIRED;
+import static com.kingrunes.somnia.common.util.SomniaState.NOT_NOW;
+import static com.kingrunes.somnia.common.util.SomniaState.WAITING_PLAYERS;
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -7,32 +13,33 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.play.server.S03PacketTimeUpdate;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.world.WorldServer;
 
 import com.kingrunes.somnia.Somnia;
 import com.kingrunes.somnia.common.PacketHandler;
-import com.kingrunes.somnia.common.util.ClassUtils;
+import com.kingrunes.somnia.common.util.SomniaState;
 
 import cpw.mods.fml.common.network.internal.FMLProxyPacket;
 
 public class ServerTickHandler
 {
+	public static final String TRANSLATION_FORMAT = "somnia.status.%s";
+			
 	private static int activeTickHandlers = 0;
 	
 	public WorldServer worldServer;
-
-	private int 	miCheck 			= -2; 		// (See Somnia.allPlayersSleeping)
-	public 	boolean mbCheck 			= false;	// All players sleeping? miCheck >= 0 (see tickStart)
+	public SomniaState currentState;
 	
-	private long 	currentSleepPeriod, 			// Incremented while mbCheck is true, reset when state is changed
-					checkTimer 			= 0, 		// Used to schedule GUI update packets and sleep state checks
+	public long 	lastSleepStart,
+					currentSleepPeriod; 			// Incremented while mbCheck is true, reset when state is changed
+	public long		checkTimer 			= 0, 		// Used to schedule GUI update packets and sleep state checks
 					lastTpsMillis		= 0,
 					liTps 				= 0, 		// Counts ticks
 					tps					= 0;		// Set per second to liTPS, used to work out actual multiplier to send to clients
 	
-	private double multiplier = Somnia.proxy.baseMultiplier;
+	private double 	multiplier 			= Somnia.proxy.baseMultiplier;
 	
 	public ServerTickHandler(WorldServer worldServer)
 	{
@@ -43,72 +50,71 @@ public class ServerTickHandler
 	{
 		incrementCounters();
 	
-		checkTimer++;
-		
-		if (checkTimer == 10)
+		if (++checkTimer == 10)
 		{
 			checkTimer = 0;
-			boolean lbCheck = mbCheck;
-			miCheck = Somnia.instance.allPlayersSleeping(worldServer);
-			mbCheck = miCheck >= 0;
 			
-			if (lbCheck != mbCheck)
+			SomniaState prevState = currentState;
+			currentState = SomniaState.getState(this);
+			
+			
+			if (prevState != currentState)
 			{
 				currentSleepPeriod = 0;
-				if (miCheck == 0)
+				if (currentState == ACTIVE) // acceleration started
+				{
+					lastSleepStart = worldServer.getTotalWorldTime();
 					activeTickHandlers++;
-				else
+				}
+				else if (prevState == ACTIVE) // acceleration stopped
+				{
 					activeTickHandlers--;
+					
+					if (currentState == EXPIRED || currentState == NOT_NOW)
+						closeGuiWithMessage(currentState.toString());
+				}
 			}
 			
-			if (miCheck < 1)
+			if (currentState == ACTIVE || currentState == WAITING_PLAYERS || currentState == COOLDOWN)
 			{
 				FMLProxyPacket packet = PacketHandler.buildGUIUpdatePacket
 				(
-					"status", mbCheck ? Somnia.timeStringForWorldTime(worldServer.getWorldTime()) : "Waiting for everyone to sleep!", //TODO: Localization
-					"speed", (double)tps/20d
+					"status", currentState == ACTIVE ? Somnia.timeStringForWorldTime(worldServer.getWorldTime()) : "f:"+currentState.toString(),
+					"speed", currentState == ACTIVE ? (double)tps/20d : .0d
 				);
 				
 				Somnia.channel.sendToDimension(packet, worldServer.provider.dimensionId);
 			}
 		}
 		
-		if (mbCheck)
-		{
-			@SuppressWarnings("unchecked")
-			List<EntityPlayer> sleepingPlayers = worldServer.playerEntities;
-			if ((Somnia.proxy.maxSleepTimePeriod > 0 && currentSleepPeriod >= Somnia.proxy.maxSleepTimePeriod) || miCheck == 1)
-			{
-				FMLProxyPacket packet = PacketHandler.buildGUIClosePacket();
-				
-				IChatComponent chatComponent = new ChatComponentText(miCheck == 1 ? "Something is keeping you awake!" : "You can't sleep forever!"); //TODO: Localization
-				Iterator<EntityPlayer> iter = sleepingPlayers.iterator();
-				EntityPlayer ep;
-				while (iter.hasNext())
-				{
-					ep = iter.next();
-					Somnia.channel.sendTo(packet, (EntityPlayerMP) ep);
-					ep.addChatMessage(chatComponent);
-				}
-				
-				mbCheck = false;
-				return;
-			}
-			
-			for (EntityPlayer sleepingPlayer : sleepingPlayers)
-				ClassUtils.setSleepTimer(sleepingPlayer, 0);
-			
-			if (miCheck == 1)
-				miCheck = -2;
-
+		if (currentState == ACTIVE)
 			doMultipliedTicking();
-		}
 	}
 	
+	private void closeGuiWithMessage(String key)
+	{
+		FMLProxyPacket packet = PacketHandler.buildGUIClosePacket();
+		
+		IChatComponent chatComponent = new ChatComponentTranslation(String.format(TRANSLATION_FORMAT, key), new Object[0]);
+		@SuppressWarnings("unchecked")
+		Iterator<EntityPlayer> iter = ((List<EntityPlayer>)worldServer.playerEntities).iterator();
+		EntityPlayer ep;
+		while (iter.hasNext())
+		{
+			ep = iter.next();
+			if (ep.isPlayerSleeping())
+			{
+				Somnia.channel.sendTo(packet, (EntityPlayerMP) ep);
+				ep.wakeUpPlayer(false, true, true); // Stop clients ignoring GUI close packets (major hax)
+				ep.addChatMessage(chatComponent);
+			}
+		}
+	}
+
 	private void incrementCounters()
 	{
 		liTps++;
-		if (mbCheck)
+		if (currentState == ACTIVE)
 			currentSleepPeriod++;
 	}
 	
