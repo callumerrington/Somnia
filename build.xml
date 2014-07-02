@@ -36,7 +36,7 @@
 	<script language="javascript"><![CDATA[
 		var versionClass = project.getProperty("version_class");
 		
-		var regexPattern = java.util.regex.Pattern.compile("([A-Z]*_[A-Z]*) = ([0-9]*)");
+		var regexPattern = java.util.regex.Pattern.compile("([^\\\s_]*_?[A-Z]*_[A-Z]*) = ([0-9]*)");
         var versionFile = new java.io.File(project.getProperty("forge_src")+"/"+versionClass.replace(".", "/")+".java");
 		var fileReader = new java.io.BufferedReader(new java.io.FileReader(versionFile));
 		var lines = new java.util.ArrayList();
@@ -47,7 +47,10 @@
 		{
 			matcher = regexPattern.matcher(str);
 			if (matcher.find())
+			{
+				if (!matcher.group(1).startsWith("CORE_"))
 				project.setProperty(matcher.group(1).toLowerCase(), matcher.group(2));
+			}
 			
 			lines.add(str);
 		}
@@ -72,6 +75,7 @@
 		fileWriter.close();
 		
     ]]></script>
+	<echo message="Building Somnia ${major_version}.${minor_version}.${revision_version}.${build_number}" />
   </target>
 
   <target name="gradle_build_win" depends="init" if="isWindows" description="build with gradle">
