@@ -83,11 +83,6 @@ public class Somnia
 		event.registerServerCommand(new SomniaCommand());
 	}
 	
-	public void overridePlayer(EntityPlayerMP player) 
-	{
-		ignoreList.add(new WeakReference<EntityPlayerMP>(player));
-	}
-	
 	public void tick()
 	{
 		synchronized (Somnia.instance.tickHandlers)

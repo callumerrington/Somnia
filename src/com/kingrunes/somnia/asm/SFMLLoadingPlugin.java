@@ -6,7 +6,7 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.MCVersion;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
 
-@MCVersion(value = "1.7.2")
+@MCVersion(value = "1.7.10")
 @TransformerExclusions(value={"com.kingrunes.somnia.asm"})
 public class SFMLLoadingPlugin implements IFMLLoadingPlugin
 {

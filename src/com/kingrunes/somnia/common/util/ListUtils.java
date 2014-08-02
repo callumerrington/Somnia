@@ -9,9 +9,9 @@ import net.minecraft.entity.player.EntityPlayerMP;
 
 public class ListUtils
 {
-	public static <T> WeakReference<T> getWeakRef(T obj, List<WeakReference<T>> list)
+	public static <T> WeakReference<T> getWeakRef(T obj, List<WeakReference<T>> refs)
 	{
-		Iterator<WeakReference<T>> iter = list.iterator();
+		Iterator<WeakReference<T>> iter = refs.iterator();
 		while (iter.hasNext())
 		{
 			WeakReference<T> weakRef = iter.next();
@@ -23,6 +23,22 @@ public class ListUtils
 		}
 		
 		return null;
+	}
+	
+	public static <T> boolean containsRef(T obj, List<WeakReference<T>> refs)
+	{
+		Iterator<WeakReference<T>> iter = refs.iterator();
+		while (iter.hasNext())
+		{
+			WeakReference<T> weakRef = iter.next();
+			T o = weakRef.get();
+			if (o == null)
+				iter.remove();
+			else if (o == obj)
+				return true;
+		}
+		
+		return false;
 	}
 
 	public static <T> List<T> extractRefs(List<WeakReference<T>> refs)

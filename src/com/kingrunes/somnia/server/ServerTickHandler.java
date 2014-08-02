@@ -105,7 +105,8 @@ public class ServerTickHandler
 			if (ep.isPlayerSleeping())
 			{
 				Somnia.channel.sendTo(packet, (EntityPlayerMP) ep);
-				ep.wakeUpPlayer(false, true, true); // Stop clients ignoring GUI close packets (major hax)
+				if (ep.isPlayerSleeping()) // this if might stop random teleporting when players have already woken
+					ep.wakeUpPlayer(false, true, true); // Stop clients ignoring GUI close packets (major hax)
 				ep.addChatMessage(chatComponent);
 			}
 		}

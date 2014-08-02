@@ -1,9 +1,7 @@
 package com.kingrunes.somnia.server;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
-
-import com.kingrunes.somnia.Somnia;
-import com.kingrunes.somnia.common.util.ListUtils;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
@@ -12,11 +10,14 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 
+import com.kingrunes.somnia.Somnia;
+import com.kingrunes.somnia.common.util.ListUtils;
+
 public class SomniaCommand extends CommandBase
 {
 	private static final String	COMMAND_NAME 			= "somnia",
 								COMMAND_USAGE			= "[override] [add|remove|list] <player>",
-								COMMAND_USAGE_CONSOLE	= "Please specify a username when issuing this command at the console",
+								COMMAND_USAGE_CONSOLE	= "[override] [add|remove|list] [player]",
 								COMMAND_USAGE_FORMAT	= "/%s %s";
 	
 	@Override
@@ -47,7 +48,7 @@ public class SomniaCommand extends CommandBase
 		{
 			EntityPlayerMP player;
 			if (args.length > 2)
-				player = MinecraftServer.getServer().getConfigurationManager().getPlayerForUsername(args[2]);
+				player = MinecraftServer.getServer().getConfigurationManager().func_152612_a(args[2]);
 			else
 			{
 				if (sender instanceof EntityPlayerMP)
@@ -57,7 +58,7 @@ public class SomniaCommand extends CommandBase
 			}
 			
 			if (args[1].equalsIgnoreCase("add"))
-				Somnia.instance.overridePlayer(player);
+				Somnia.instance.ignoreList.add(new WeakReference<EntityPlayerMP>(player));
 			else if (args[1].equalsIgnoreCase("remove"))
 				Somnia.instance.ignoreList.remove(ListUtils.<EntityPlayerMP>getWeakRef(player, Somnia.instance.ignoreList));
 			else if (args[1].equalsIgnoreCase("list"))

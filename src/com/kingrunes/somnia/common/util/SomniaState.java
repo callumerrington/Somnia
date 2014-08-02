@@ -3,7 +3,7 @@ package com.kingrunes.somnia.common.util;
 import java.util.Iterator;
 import java.util.List;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 
 import com.kingrunes.somnia.Somnia;
 import com.kingrunes.somnia.server.ServerTickHandler;
@@ -34,14 +34,15 @@ public enum SomniaState
 			return IDLE;
 		
 		@SuppressWarnings("unchecked")
-		List<EntityPlayer> players = handler.worldServer.playerEntities;
+		List<EntityPlayerMP> players = handler.worldServer.playerEntities;
 		
 		boolean sleeping, anySleeping = false, allSleeping = true;
 		
-		Iterator<EntityPlayer> iter = players.iterator();
+		Iterator<EntityPlayerMP> iter = players.iterator();
 		while (iter.hasNext())
 		{
-			sleeping = iter.next().isPlayerSleeping();
+			EntityPlayerMP player = iter.next();
+			sleeping = player.isPlayerSleeping() || ListUtils.<EntityPlayerMP>containsRef(player, Somnia.instance.ignoreList);
 			anySleeping |= sleeping;
 			allSleeping &= sleeping;
 		}
