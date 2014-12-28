@@ -58,7 +58,8 @@ public class GuiSomnia extends GuiSleepMP
 	public void onGuiClosed()
 	{
 		super.onGuiClosed();
-		this.mc.thePlayer.sendQueue.addToSendQueue(new C0BPacketEntityAction(this.mc.thePlayer, 3));
+		if (this.mc.thePlayer != null) // save clients from outdated servers causing NPEs
+			this.mc.thePlayer.sendQueue.addToSendQueue(new C0BPacketEntityAction(this.mc.thePlayer, 3));
 	}
 	
 	@Override

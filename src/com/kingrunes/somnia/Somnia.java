@@ -45,7 +45,7 @@ public class Somnia
 	public List<ServerTickHandler> tickHandlers;
 	public List<WeakReference<EntityPlayerMP>> ignoreList;
 	
-	@Instance
+	@Instance(Somnia.MOD_ID)
 	public static Somnia instance;
 	
 	@SidedProxy(serverSide="com.kingrunes.somnia.common.CommonProxy", clientSide="com.kingrunes.somnia.client.ClientProxy")

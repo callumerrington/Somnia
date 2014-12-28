@@ -39,7 +39,7 @@ public class PlayerTickHandler
 			state.sleepOverride = true;
 			ClassUtils.setSleeping(player, false);
 			
-			if (Somnia.proxy.fading)
+			if (player.worldObj.isRemote && Somnia.proxy.fading)
 			{
 				int sleepTimer = player.getSleepTimer()+1;
 				if (sleepTimer >= 99)
