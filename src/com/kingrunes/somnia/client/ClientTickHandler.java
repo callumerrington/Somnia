@@ -87,7 +87,12 @@ public class ClientTickHandler
 			}
 		}
 		
-		if (Somnia.clientAutoWakeTime > -1 && mc.theWorld.getTotalWorldTime() >= Somnia.clientAutoWakeTime)
+		/*
+		 * Note the isPlayerSleeping() check. Without this, the mod exploits a bug which exists in vanilla Minecraft which
+		 * allows the player to teleport back to there bed from anywhere in the world at any time.
+		 */
+		
+		if (Somnia.clientAutoWakeTime > -1 && mc.thePlayer.isPlayerSleeping() && mc.theWorld.getTotalWorldTime() >= Somnia.clientAutoWakeTime)
 		{
 			Somnia.clientAutoWakeTime = -1;
 			mc.thePlayer.sendQueue.addToSendQueue(new C0BPacketEntityAction(mc.thePlayer, 3));
