@@ -26,15 +26,20 @@ public class SClassTransformer implements IClassTransformer
 			return patchFMLCommonHandler(bytes);
 		else if (name.equalsIgnoreCase("net.minecraft.client.renderer.EntityRenderer"))
 			return patchEntityRenderer(bytes, false);
-		else if (name.equalsIgnoreCase("bll"))
+		else if (name.equalsIgnoreCase("blt"))
 			return patchEntityRenderer(bytes, true);
 		else if (name.equalsIgnoreCase("net.minecraft.world.WorldServer"))
 			return patchWorldServer(bytes, false);
-		else if (name.equalsIgnoreCase("mj"))
+		else if (name.equalsIgnoreCase("mt"))
 			return patchWorldServer(bytes, true);
+		else if (name.equalsIgnoreCase("net.minecraft.world.chunk.Chunk"))
+			return patchChunk(bytes, false);
+		else if (name.equalsIgnoreCase("apx"))
+			return patchChunk(bytes, true);
 		return bytes;
 	}
 
+	@SuppressWarnings("deprecation")
 	private byte[] patchFMLCommonHandler(byte[] bytes)
 	{
 		String methodName = "onPostServerTick";
@@ -168,21 +173,38 @@ public class SClassTransformer implements IClassTransformer
         return cw.toByteArray();
 	}
 	
-	/*
-	private byte[] patchWorld(byte[] bytes)
+	private byte[] patchChunk(byte[] bytes, boolean obf)
 	{
-		String methodName = "a";
+		String methodName = obf ? "b" : "func_150804_b";
+		String methodName2 = obf ? "p" : "func_150809_p";
+		
 		ClassNode classNode = new ClassNode();
         ClassReader classReader = new ClassReader(bytes);
         classReader.accept(classNode, 0);
         
         Iterator<MethodNode> methods = classNode.methods.iterator();
+        AbstractInsnNode ain;
         while(methods.hasNext())
         {
         	MethodNode m = methods.next();
         	if (m.name.equals(methodName))
         	{
-        		m.access = Opcodes.ACC_PUBLIC;
+        		Iterator<AbstractInsnNode> iter = m.instructions.iterator();
+        		while (iter.hasNext())
+        		{
+        			ain = iter.next();
+        			if (ain instanceof MethodInsnNode)
+        			{
+        				MethodInsnNode min = (MethodInsnNode)ain;
+        				if (min.name.equals(methodName2))
+        				{
+        					min.setOpcode(Opcodes.INVOKESTATIC);
+        					min.desc = "(Lnet/minecraft/world/chunk/Chunk;)V";
+        					min.name = "chunkLightCheck";
+        					min.owner = "com/kingrunes/somnia/Somnia";
+        				}
+        			}
+        		}
         		break;
         	}
         }
@@ -191,5 +213,4 @@ public class SClassTransformer implements IClassTransformer
         classNode.accept(cw);
         return cw.toByteArray();
 	}
-	*/
 }

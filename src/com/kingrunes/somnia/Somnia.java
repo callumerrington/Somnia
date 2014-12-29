@@ -9,11 +9,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.config.Configuration;
 
 import org.lwjgl.opengl.GL11;
-
-import scala.NotImplementedError;
 
 import com.kingrunes.somnia.common.CommonProxy;
 import com.kingrunes.somnia.common.PacketHandler;
@@ -160,23 +159,26 @@ public class Somnia
 				return serverTickHandler.currentState != SomniaState.ACTIVE;
 		}
 		
-		throw new NotImplementedError("tickHandlers doesn't contain match for given world server");
+		throw new IllegalStateException("tickHandlers doesn't contain match for given world server");
 	}
 	
-	/*		
-	public static void moodSoundAndLightCheck(int par1, int par2, Chunk par3Chunk)
+	public static void chunkLightCheck(Chunk chunk)
 	{
-		if (proxy.disableMoodSoundAndLightCheck)
+		if (!proxy.disableMoodSoundAndLightCheck)
+			chunk.func_150809_p();
+		
+		for (ServerTickHandler serverTickHandler : instance.tickHandlers)
 		{
-			for (ServerTickHandler serverTickHandler : instance.tickHandlers)
+			if (serverTickHandler.worldServer == chunk.worldObj)
 			{
-				if (serverTickHandler.worldServer == par3Chunk.worldObj)
-					if (serverTickHandler.mbCheck)
-						return;
+				if (serverTickHandler.currentState != SomniaState.ACTIVE)
+					chunk.func_150809_p();
+				//else
+					//System.out.println("chunkLightCheck! dadfsg");
+				return;
 			}
 		}
 		
-		par3Chunk.worldObj.moodSoundAndLightCheck(par1, par2, par3Chunk);
+		chunk.func_150809_p();
 	}
-	*/
 }
