@@ -122,21 +122,26 @@ public class ServerTickHandler
 	private double overflow = .0d;
 	private void doMultipliedTicking()
 	{
-		// We can't run 0.5 of a tick,
-		//so we floor the multiplier and store the difference as overflow to be ran on the next tick
-		int liMultiplier = (int) Math.floor(multiplier);
-		double target = liMultiplier + overflow;
+		/*
+		 * We can't run 0.5 of a tick,
+		 * so we floor the multiplier and store the difference as overflow to be ran on the next tick
+		 */
+//		int liMultiplier = (int) Math.floor(multiplier);
+		double target = multiplier + overflow;
 		int liTarget = (int) Math.floor(target);
 		overflow = target - liTarget;
 		
-		long nanoTime = System.nanoTime();
+		long delta = System.currentTimeMillis();
 		for (int i=0; i<liTarget; i++)
 			doMultipliedServerTicking();
+		delta = System.currentTimeMillis() - delta;
 		
-		if (nanoTime > 50.0d/activeTickHandlers)
-			multiplier += .1d;
-		else
+		MinecraftServer.getServer().getConfigurationManager().sendPacketToAllPlayersInDimension(new S03PacketTimeUpdate(worldServer.getTotalWorldTime(), worldServer.getWorldTime(), worldServer.getGameRules().getGameRuleBooleanValue("doDaylightCycle")), worldServer.provider.dimensionId);
+		
+		if (delta > (50.0d/activeTickHandlers))
 			multiplier -= .1d;
+		else
+			multiplier += .1d;
 		
 		if (multiplier > Somnia.proxy.multiplierCap)
 			multiplier = Somnia.proxy.multiplierCap;
@@ -158,7 +163,7 @@ public class ServerTickHandler
 		worldServer.tick();
 		worldServer.updateEntities();
 		worldServer.getEntityTracker().updateTrackedEntities();
-		MinecraftServer.getServer().getConfigurationManager().sendPacketToAllPlayersInDimension(new S03PacketTimeUpdate(worldServer.getTotalWorldTime(), worldServer.getWorldTime(), worldServer.getGameRules().getGameRuleBooleanValue("doDaylightCycle")), worldServer.provider.dimensionId);
+		//MinecraftServer.getServer().getConfigurationManager().sendPacketToAllPlayersInDimension(new S03PacketTimeUpdate(worldServer.getTotalWorldTime(), worldServer.getWorldTime(), worldServer.getGameRules().getGameRuleBooleanValue("doDaylightCycle")), worldServer.provider.dimensionId);
 		incrementCounters();
 	}
 }
