@@ -48,8 +48,6 @@ public class ServerTickHandler
 	
 	public void tickStart()
 	{
-		incrementCounters();
-	
 		if (++checkTimer == 10)
 		{
 			checkTimer = 0;
@@ -115,8 +113,7 @@ public class ServerTickHandler
 	private void incrementCounters()
 	{
 		liTps++;
-		if (currentState == ACTIVE)
-			currentSleepPeriod++;
+		currentSleepPeriod++;
 	}
 	
 	private double overflow = .0d;
