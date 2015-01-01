@@ -98,7 +98,7 @@
 	<delete file="${dist}/${ant.project.name}-${major_version}.${minor_version}.${revision_version}.${build_number}.jar" />
 	<jar destfile="${dist}/${ant.project.name}-${major_version}.${minor_version}.${revision_version}.${build_number}.jar" basedir="${basedir}" includes="mcmod.info">
 		<zipfileset src="${forge_dist}/modid-1.0.jar" excludes="mcmod.info" />
-		<fileset dir="${src}" includes="assets/*" />
+		<fileset dir="${src}" includes="assets/**" />
 		<manifest>
 			<attribute name="FMLCorePlugin" value="${core_mod_class}" />
 			<attribute name="FMLCorePluginContainsFMLMod" value="true" />
