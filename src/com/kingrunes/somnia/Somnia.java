@@ -150,8 +150,9 @@ public class Somnia
 	
 	public static boolean doMobSpawning(WorldServer par1WorldServer)
 	{
-		if (!proxy.disableCreatureSpawning || !par1WorldServer.getGameRules().getGameRuleBooleanValue("doMobSpawning"))
-			return false;
+		boolean defValue = par1WorldServer.getGameRules().getGameRuleBooleanValue("doMobSpawning");
+		if (!proxy.disableCreatureSpawning || !defValue)
+			return defValue;
 		
 		for (ServerTickHandler serverTickHandler : instance.tickHandlers)
 		{
@@ -173,8 +174,6 @@ public class Somnia
 			{
 				if (serverTickHandler.currentState != SomniaState.ACTIVE)
 					chunk.func_150809_p();
-				//else
-					//System.out.println("chunkLightCheck! dadfsg");
 				return;
 			}
 		}
