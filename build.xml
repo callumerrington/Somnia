@@ -111,4 +111,6 @@
 		<fileset dir="${forge_src}" includes="**/*"/>
 	</delete>
   </target>
+  
+  <target name="build_clean" depends="gradle_dist, clean" />
 </project>

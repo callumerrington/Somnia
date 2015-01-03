@@ -8,3 +8,5 @@ bin/
 # build
 dist/
 *.jar
+__pycache__/
+build_props.py
