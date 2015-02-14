@@ -38,8 +38,7 @@ public class CommonProxy
 	public TimePeriod 	enterSleepPeriod;
 	public TimePeriod 	validSleepPeriod;
 	
-	public long 		maxSleepTimePeriod,
-						sleepCooldown;
+	public long 		maxSleepTimePeriod;
 	
 	public double 		fatigueRate,
 						fatigueReplenishRate,
@@ -61,6 +60,8 @@ public class CommonProxy
 						disableMoodSoundAndLightCheck;
 	
 	public String		displayFatigue;
+	
+	public static ForgeEventHandler forgeEventHandler;
 	
 	public void configure(File file)
 	{
@@ -93,8 +94,8 @@ public class CommonProxy
 		 */
 		fatigueSideEffects = config.get("fatigue", "fatigueSideEffects", true).getBoolean(true);
 		displayFatigue = config.get("fatigue", "displayFatigue", "br").getString();
-		fatigueRate = config.get("fatigue", "fatigueRate", 0.004166d).getDouble(0.004166d);
-		fatigueReplenishRate = config.get("fatigue", "fatigueReplenishRate", 0.006d).getDouble(0.006d);
+		fatigueRate = config.get("fatigue", "fatigueRate", 0.00417d).getDouble(0.00417d);
+		fatigueReplenishRate = config.get("fatigue", "fatigueReplenishRate", 0.00833d).getDouble(0.00833d);
 		minimumFatigueToSleep = config.get("fatigue", "minimumFatigueToSleep", 40.0d).getDouble(40.0d);
 		
 		/*
@@ -135,7 +136,7 @@ public class CommonProxy
 		
 		FMLCommonHandler.instance().bus().register(new PlayerSleepTickHandler());
 		
-		ForgeEventHandler forgeEventHandler = new ForgeEventHandler();
+		forgeEventHandler = new ForgeEventHandler();
 		MinecraftForge.EVENT_BUS.register(forgeEventHandler);
 		FMLCommonHandler.instance().bus().register(forgeEventHandler);
 	}

@@ -34,7 +34,7 @@ public class ForgeEventHandler
 			props = SomniaEntityPlayerProperties.register(player);
 		double fatigue = props.getFatigue();
 		
-		boolean isSleeping = PlayerSleepTickHandler.serverState.sleepOverride;
+		boolean isSleeping = PlayerSleepTickHandler.serverState.sleepOverride || player.isPlayerSleeping();
 		
 		if (isSleeping)
 			fatigue -= Somnia.proxy.fatigueReplenishRate;
@@ -48,7 +48,7 @@ public class ForgeEventHandler
 		
 		props.setFatigue(fatigue);
 		
-		if (++props.fatigueUpdateCounter >= 20)
+		if (++props.fatigueUpdateCounter >= 100)
 		{
 			props.fatigueUpdateCounter = 0;
 			Somnia.channel.sendTo(PacketHandler.buildPropUpdatePacket(0x01, 0x00, fatigue), (EntityPlayerMP) player);

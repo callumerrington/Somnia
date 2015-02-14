@@ -19,13 +19,13 @@ public enum SomniaState
 	
 	public static SomniaState getState(ServerTickHandler handler)
 	{
-		if (handler.currentSleepPeriod > Somnia.proxy.maxSleepTimePeriod)
-			return EXPIRED;
+		/*if (handler.currentSleepPeriod > Somnia.proxy.maxSleepTimePeriod)
+			return EXPIRED;*/
 		
 		long totalWorldTime = handler.worldServer.getTotalWorldTime();
 		
-		if (handler.currentState != ACTIVE && handler.lastSleepStart > 0 && totalWorldTime-handler.lastSleepStart < Somnia.proxy.sleepCooldown)
-			return COOLDOWN;
+		/*if (handler.currentState != ACTIVE && handler.lastSleepStart > 0 && totalWorldTime-handler.lastSleepStart < Somnia.proxy.sleepCooldown)
+			return COOLDOWN;*/
 		
 		if (!Somnia.proxy.validSleepPeriod.isTimeWithin(totalWorldTime % 24000))
 			return NOT_NOW;

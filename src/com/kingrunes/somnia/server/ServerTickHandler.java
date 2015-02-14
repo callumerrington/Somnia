@@ -18,9 +18,13 @@ import net.minecraft.util.IChatComponent;
 import net.minecraft.world.WorldServer;
 
 import com.kingrunes.somnia.Somnia;
+import com.kingrunes.somnia.common.CommonProxy;
 import com.kingrunes.somnia.common.PacketHandler;
 import com.kingrunes.somnia.common.util.SomniaState;
 
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.gameevent.TickEvent;
+import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 import cpw.mods.fml.common.network.internal.FMLProxyPacket;
 
 public class ServerTickHandler
@@ -158,10 +162,18 @@ public class ServerTickHandler
 	
 	private void doMultipliedServerTicking()
 	{
+		FMLCommonHandler.instance().onPreWorldTick(worldServer);
 		worldServer.tick();
 		worldServer.updateEntities();
 		worldServer.getEntityTracker().updateTrackedEntities();
-		//MinecraftServer.getServer().getConfigurationManager().sendPacketToAllPlayersInDimension(new S03PacketTimeUpdate(worldServer.getTotalWorldTime(), worldServer.getWorldTime(), worldServer.getGameRules().getGameRuleBooleanValue("doDaylightCycle")), worldServer.provider.dimensionId);
+		FMLCommonHandler.instance().onPostWorldTick(worldServer);
+		
+		/*
+		 * Work around for making sure fatigue is updated with every tick (including Somnia ticks)
+		 */
+		for (Object obj : worldServer.playerEntities)
+			CommonProxy.forgeEventHandler.onPlayerTick(new TickEvent.PlayerTickEvent(Phase.START, (EntityPlayer) obj));
+		
 		incrementCounters();
 	}
 }
