@@ -124,7 +124,7 @@ public class GuiSomnia extends GuiSleepMP
 			int etaSeconds = etaTotalSeconds % 60,
 				etaMinutes = (etaTotalSeconds-etaSeconds) / 60;
 			
-			renderScaledString(x + 50 + 10, 20, 1.5f, ETA_FORMAT, (etaMinutes>10?"":"0") + etaMinutes, (etaSeconds>10?"":"0") + etaSeconds);
+			renderScaledString(x + 50 + 10, 20, 1.5f, ETA_FORMAT, (etaMinutes<10?"0":"") + etaMinutes, (etaSeconds<10?"0":"") + etaSeconds);
 			
 			// Clock
 			renderClock(maxWidth - 40, 30, 4.0f);
