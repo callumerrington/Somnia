@@ -33,7 +33,7 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 public class CommonProxy
 {
-	private static final int CONFIG_VERSION = 1;
+	private static final int CONFIG_VERSION = 2;
 	
 	public TimePeriod 	enterSleepPeriod;
 	public TimePeriod 	validSleepPeriod;
@@ -41,9 +41,14 @@ public class CommonProxy
 	public long 		maxSleepTimePeriod,
 						sleepCooldown;
 	
-	public double 		baseMultiplier,
+	public double 		fatigueRate,
+						fatigueReplenishRate,
+						minimumFatigueToSleep,
+						baseMultiplier,
 						multiplierCap;
-	public boolean 		tpsGraph,
+	
+	public boolean 		fatigueSideEffects,
+						tpsGraph,
 						secondsOnGraph,
 						sleepWithArmor,
 						vanillaBugFixes,
@@ -54,6 +59,8 @@ public class CommonProxy
 						disableCreatureSpawning,
 						disableRendering,
 						disableMoodSoundAndLightCheck;
+	
+	public String		displayFatigue;
 	
 	public void configure(File file)
 	{
@@ -80,8 +87,15 @@ public class CommonProxy
 						config.get("timings", "validSleepStart", 0).getInt(),
 						config.get("timings", "validSleepEnd", 24000).getInt()
 						);
-		maxSleepTimePeriod = config.get("timings", "maxSleepTime", 24000).getInt();
-		sleepCooldown = config.get("timings", "sleepCooldown", 12000).getInt();
+		
+		/*
+		 * Fatigue
+		 */
+		fatigueSideEffects = config.get("fatigue", "fatigueSideEffects", true).getBoolean(true);
+		displayFatigue = config.get("fatigue", "displayFatigue", "br").getString();
+		fatigueRate = config.get("fatigue", "fatigueRate", 0.004166d).getDouble(0.004166d);
+		fatigueReplenishRate = config.get("fatigue", "fatigueReplenishRate", 0.006d).getDouble(0.006d);
+		minimumFatigueToSleep = config.get("fatigue", "minimumFatigueToSleep", 40.0d).getDouble(40.0d);
 		
 		/*
 		 * Logic

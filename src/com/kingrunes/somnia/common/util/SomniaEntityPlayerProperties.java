@@ -10,8 +10,6 @@ public class SomniaEntityPlayerProperties implements IExtendedEntityProperties
 {
 	public static final String PROP_NAME = "somnia_player_props";
 	
-	public static final double FATIGUE_MAX = 100.0d;
-	
 	private double fatigue;
 	public int fatigueUpdateCounter = 0;
 	

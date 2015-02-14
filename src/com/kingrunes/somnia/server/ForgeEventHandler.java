@@ -37,12 +37,12 @@ public class ForgeEventHandler
 		boolean isSleeping = PlayerSleepTickHandler.serverState.sleepOverride;
 		
 		if (isSleeping)
-			fatigue += .07;
+			fatigue -= Somnia.proxy.fatigueReplenishRate;
 		else
-			fatigue -= .0035;
+			fatigue += Somnia.proxy.fatigueRate;
 		
-		if (fatigue > SomniaEntityPlayerProperties.FATIGUE_MAX)
-			fatigue = SomniaEntityPlayerProperties.FATIGUE_MAX;
+		if (fatigue > 100.0d)
+			fatigue = 100.0d;
 		else if (fatigue < .0d)
 			fatigue = .0d;
 		
