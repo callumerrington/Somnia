@@ -10,17 +10,17 @@ import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 import cpw.mods.fml.relauncher.Side;
 
-public class PlayerTickHandler
+public class PlayerSleepTickHandler
 {
 	/*
 	 * A sided state for caching player data 
 	 */
 	public static class State
 	{
-		boolean sleepOverride = false;
+		public boolean sleepOverride = false;
 	}
 	
-	private State clientState = new State(), serverState = new State();
+	public static State clientState = new State(), serverState = new State();
 	
 	@SubscribeEvent
 	public void onPlayerTick(TickEvent.PlayerTickEvent event)

@@ -25,6 +25,7 @@ import net.minecraftforge.event.world.WorldEvent;
 import com.kingrunes.somnia.Somnia;
 import com.kingrunes.somnia.common.util.ClassUtils;
 import com.kingrunes.somnia.common.util.TimePeriod;
+import com.kingrunes.somnia.server.ForgeEventHandler;
 import com.kingrunes.somnia.server.ServerTickHandler;
 
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -117,7 +118,12 @@ public class CommonProxy
 	public void register()
 	{
 		MinecraftForge.EVENT_BUS.register(this);
-		FMLCommonHandler.instance().bus().register(new PlayerTickHandler());
+		
+		FMLCommonHandler.instance().bus().register(new PlayerSleepTickHandler());
+		
+		ForgeEventHandler forgeEventHandler = new ForgeEventHandler();
+		MinecraftForge.EVENT_BUS.register(forgeEventHandler);
+		FMLCommonHandler.instance().bus().register(forgeEventHandler);
 	}
 	
 	@SubscribeEvent
@@ -286,7 +292,7 @@ public class CommonProxy
 	public void handleGUIOpenPacket() throws IOException
 	{}
 
-	public void handleGUIUpdatePacket(DataInputStream in) throws IOException
+	public void handlePropUpdatePacket(DataInputStream in) throws IOException
 	{}
 
 	public void handleGUIClosePacket(EntityPlayerMP player)

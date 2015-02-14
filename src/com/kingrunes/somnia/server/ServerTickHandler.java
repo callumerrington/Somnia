@@ -75,10 +75,11 @@ public class ServerTickHandler
 			
 			if (currentState == ACTIVE || currentState == WAITING_PLAYERS || currentState == COOLDOWN)
 			{
-				FMLProxyPacket packet = PacketHandler.buildGUIUpdatePacket
+				FMLProxyPacket packet = PacketHandler.buildPropUpdatePacket
 				(
-					"status", currentState == ACTIVE ? Somnia.timeStringForWorldTime(worldServer.getWorldTime()) : "f:"+currentState.toString(),
-					"speed", currentState == ACTIVE ? (double)tps/20d : .0d
+					0x00,
+					0x00, currentState == ACTIVE ? (double)tps/20d : .0d,
+					0x01, currentState == ACTIVE ? Somnia.timeStringForWorldTime(worldServer.getWorldTime()) : "f:"+currentState.toString()
 				);
 				
 				Somnia.channel.sendToDimension(packet, worldServer.provider.dimensionId);

@@ -55,7 +55,7 @@ public class PacketHandler
 				handleGUIClosePacket(player, in);
 				break;
 			case 0x02:
-				handleGUIUpdate(in);
+				handlePropUpdatePacket(in);
 				break;
 			}
 		}
@@ -71,13 +71,12 @@ public class PacketHandler
 		Somnia.proxy.handleGUIOpenPacket();
 	}
 	
-	private void handleGUIUpdate(DataInputStream in) throws IOException 
+	private void handlePropUpdatePacket(DataInputStream in) throws IOException 
 	{
-		Somnia.proxy.handleGUIUpdatePacket(in);
+		Somnia.proxy.handlePropUpdatePacket(in);
 	}
-	//
 	
-	// BOTH
+	
 	private void handleGUIClosePacket(EntityPlayerMP player, DataInputStream in) throws IOException
 	{
 		Somnia.proxy.handleGUIClosePacket(player);
@@ -166,17 +165,18 @@ public class PacketHandler
         }
 	}
 	
-	public static FMLProxyPacket buildGUIUpdatePacket(Object... fields)
+	public static FMLProxyPacket buildPropUpdatePacket(int target, Object... fields)
 	{
 		ByteBufOutputStream bbos = unpooled();
 		
         try
         {
         	bbos.writeByte(0x02);
+        	bbos.writeByte(target);
         	bbos.writeInt(fields.length/2);
         	for (int i=0; i<fields.length; i++)
         	{
-        		StreamUtils.writeString(fields[i].toString(), bbos);
+        		bbos.writeByte((int) fields[i]);
         		StreamUtils.writeObject(fields[++i], bbos);
         	}
         	

@@ -105,15 +105,18 @@ public class GuiSomnia extends GuiSleepMP
 				);
     }
 	
-	public void updateField(String field, DataInputStream in) throws IOException
+	public void readField(DataInputStream in) throws IOException
 	{
-		if (field.equalsIgnoreCase("status"))
+		switch (in.readByte())
 		{
+		case 0x00:
+			speed = in.readDouble();
+			break;
+		case 0x01:
 			String str = StreamUtils.readString(in);
 			status = str.startsWith("f:") ? new ChatComponentTranslation(String.format(TRANSLATION_FORMAT, str.substring(2).toLowerCase()), new Object[0]).getUnformattedTextForChat() : str;
+			break;
 		}
-		else if (field.equalsIgnoreCase("speed"))
-			speed = in.readDouble();
 	}
 	
 	public static byte[] getColorForSpeed(double speed)

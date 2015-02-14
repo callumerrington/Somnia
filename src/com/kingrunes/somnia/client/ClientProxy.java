@@ -16,7 +16,6 @@ import com.kingrunes.somnia.Somnia;
 import com.kingrunes.somnia.client.gui.GuiSelectWakeTime;
 import com.kingrunes.somnia.client.gui.GuiSomnia;
 import com.kingrunes.somnia.common.CommonProxy;
-import com.kingrunes.somnia.common.StreamUtils;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -26,6 +25,8 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class ClientProxy extends CommonProxy
 {
+	public static double playerFatigue = -1;
+	
 	@Override
 	public void register()
 	{
@@ -82,20 +83,35 @@ public class ClientProxy extends CommonProxy
 	}
 
 	@Override
-	public void handleGUIUpdatePacket(DataInputStream in) throws IOException
+	public void handlePropUpdatePacket(DataInputStream in) throws IOException
 	{
-		GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
-		if (currentScreen != null && currentScreen instanceof GuiSomnia)
+		byte target = in.readByte();
+		
+		switch (target)
 		{
-			GuiSomnia gui = (GuiSomnia)currentScreen;
-			
-			String fieldName;
+		case 0x00:
+			GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
+			if (currentScreen != null && currentScreen instanceof GuiSomnia)
+			{
+				GuiSomnia gui = (GuiSomnia)currentScreen;
+				
+				int b = in.readInt();
+				for (int a=0; a<b; a++)
+					gui.readField(in);
+			}
+			break;
+		case 0x01:
 			int b = in.readInt();
 			for (int a=0; a<b; a++)
 			{
-				fieldName = StreamUtils.readString(in);
-				gui.updateField(fieldName, in);
+				switch (in.readByte())
+				{
+				case 0x00:
+					playerFatigue = in.readDouble();
+					break;
+				}
 			}
+			break;
 		}
 	}
 

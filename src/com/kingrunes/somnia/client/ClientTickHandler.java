@@ -98,4 +98,10 @@ public class ClientTickHandler
 			mc.thePlayer.sendQueue.addToSendQueue(new C0BPacketEntityAction(mc.thePlayer, 3));
 		}
 	}
+	
+	//@SubscribeEvent
+	public void onRenderTick(TickEvent.RenderTickEvent event)
+	{
+		
+	}
 }

@@ -40,6 +40,7 @@ public class Somnia
 	public static final String VERSION = SomniaVersion.getVersionString();
 	
 	public Configuration config;
+	//public HashMap<String, Integer> player
 	
 	public List<ServerTickHandler> tickHandlers;
 	public List<WeakReference<EntityPlayerMP>> ignoreList;
