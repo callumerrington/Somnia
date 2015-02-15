@@ -143,7 +143,7 @@ public class GuiSomnia extends GuiSleepMP
 		}
 	}
 	
-	private int renderScaledString(int x, int y, float scale, String format, Object... args)
+	private void renderScaledString(int x, int y, float scale, String format, Object... args)
 	{
 		String str = String.format(format, args);
 		glPushMatrix();
@@ -161,7 +161,7 @@ public class GuiSomnia extends GuiSleepMP
 		}
 		glPopMatrix();
 		
-		return (int) (fontRendererObj.getStringWidth(str) * scale);
+		//return (int) (fontRendererObj.getStringWidth(str) * scale);
 	}
 	
 	private void renderClock(int x, int y, float scale)
