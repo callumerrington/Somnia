@@ -13,6 +13,7 @@ import net.minecraft.entity.player.EntityPlayer.EnumStatus;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
@@ -24,6 +25,7 @@ import net.minecraftforge.event.world.WorldEvent;
 
 import com.kingrunes.somnia.Somnia;
 import com.kingrunes.somnia.common.util.ClassUtils;
+import com.kingrunes.somnia.common.util.SomniaEntityPlayerProperties;
 import com.kingrunes.somnia.common.util.TimePeriod;
 import com.kingrunes.somnia.server.ForgeEventHandler;
 import com.kingrunes.somnia.server.ServerTickHandler;
@@ -37,8 +39,6 @@ public class CommonProxy
 	
 	public TimePeriod 	enterSleepPeriod;
 	public TimePeriod 	validSleepPeriod;
-	
-	public long 		maxSleepTimePeriod;
 	
 	public double 		fatigueRate,
 						fatigueReplenishRate,
@@ -94,9 +94,9 @@ public class CommonProxy
 		 */
 		fatigueSideEffects = config.get("fatigue", "fatigueSideEffects", true).getBoolean(true);
 		displayFatigue = config.get("fatigue", "displayFatigue", "br").getString();
-		fatigueRate = config.get("fatigue", "fatigueRate", 0.00417d).getDouble(0.00417d);
+		fatigueRate = config.get("fatigue", "fatigueRate", 0.00208d).getDouble(0.00208d);
 		fatigueReplenishRate = config.get("fatigue", "fatigueReplenishRate", 0.00833d).getDouble(0.00833d);
-		minimumFatigueToSleep = config.get("fatigue", "minimumFatigueToSleep", 40.0d).getDouble(40.0d);
+		minimumFatigueToSleep = config.get("fatigue", "minimumFatigueToSleep", 20.0d).getDouble(20.0d);
 		
 		/*
 		 * Logic
@@ -201,6 +201,14 @@ public class CommonProxy
 		
 		if (!event.entityPlayer.worldObj.isRemote)
         {
+			SomniaEntityPlayerProperties props = SomniaEntityPlayerProperties.get(event.entityPlayer);
+			if (props != null && props.getFatigue() < minimumFatigueToSleep)
+			{
+				event.result = EnumStatus.OTHER_PROBLEM;
+				event.entityPlayer.addChatMessage(new ChatComponentTranslation("somnia.status.cooldown"));
+				return;
+			}
+			
 			if (!enterSleepPeriod.isTimeWithin(event.entityPlayer.worldObj.getWorldTime() % 24000))
 			{
 				event.result = EnumStatus.NOT_POSSIBLE_NOW;

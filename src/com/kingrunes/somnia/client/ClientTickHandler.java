@@ -2,11 +2,15 @@ package com.kingrunes.somnia.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundCategory;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.gui.GuiSleepMP;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.network.play.client.C0BPacketEntityAction;
 
 import com.kingrunes.somnia.Somnia;
+import com.kingrunes.somnia.client.gui.GuiSomnia;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
@@ -14,6 +18,8 @@ import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 
 public class ClientTickHandler
 {
+	private static final String FATIGUE_FORMAT = GuiSomnia.WHITE + "Fatigue: %.2f";
+	
 	private boolean moddedFOV = false;
 	private float fov = -1;
 	
@@ -99,9 +105,43 @@ public class ClientTickHandler
 		}
 	}
 	
-	//@SubscribeEvent
+	@SubscribeEvent
 	public void onRenderTick(TickEvent.RenderTickEvent event)
 	{
+		Minecraft mc = Minecraft.getMinecraft();
+		if (event.phase != Phase.END || ClientProxy.playerFatigue == -1 || (mc.currentScreen != null && !(mc.currentScreen instanceof GuiIngameMenu) && !(mc.currentScreen instanceof GuiSomnia)))
+			return;
 		
+		FontRenderer fontRenderer = mc.fontRenderer;
+		ScaledResolution scaledResolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
+		String str = String.format(FATIGUE_FORMAT, ClientProxy.playerFatigue);
+		int x, y, stringWidth = fontRenderer.getStringWidth(str);
+		switch (Somnia.proxy.displayFatigue.toLowerCase())
+		{
+		case "tl":
+			x = 10;
+			y = 10;
+			break;
+		case "tr":
+			x = scaledResolution.getScaledWidth()-stringWidth-10;
+			y = 10;
+			break;
+		case "bl":
+			x = 10;
+			y = scaledResolution.getScaledHeight()-fontRenderer.FONT_HEIGHT-10;
+			break;
+		case "br":
+			x = scaledResolution.getScaledWidth()-stringWidth-10;
+			y = scaledResolution.getScaledHeight()-fontRenderer.FONT_HEIGHT-10;
+			break;
+		default:
+			return;
+		}
+		
+		
+//			x = 800;
+//			y = 100;
+//			System.out.println("x = " + x + " y = " + y);
+		fontRenderer.drawString(str, x, y, Integer.MIN_VALUE);
 	}
 }
