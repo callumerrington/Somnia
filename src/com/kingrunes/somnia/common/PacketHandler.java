@@ -176,7 +176,7 @@ public class PacketHandler
         	bbos.writeInt(fields.length/2);
         	for (int i=0; i<fields.length; i++)
         	{
-        		bbos.writeByte((int) fields[i]);
+        		bbos.writeByte((Integer) fields[i]);
         		StreamUtils.writeObject(fields[++i], bbos);
         	}
         	

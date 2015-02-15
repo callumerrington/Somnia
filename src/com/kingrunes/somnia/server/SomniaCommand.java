@@ -12,12 +12,13 @@ import net.minecraft.util.ChatComponentText;
 
 import com.kingrunes.somnia.Somnia;
 import com.kingrunes.somnia.common.util.ListUtils;
+import com.kingrunes.somnia.common.util.SomniaEntityPlayerProperties;
 
 public class SomniaCommand extends CommandBase
 {
 	private static final String	COMMAND_NAME 			= "somnia",
-								COMMAND_USAGE			= "[override] [add|remove|list] <player>",
-								COMMAND_USAGE_CONSOLE	= "[override] [add|remove|list] [player]",
+								COMMAND_USAGE			= "[override [add <player>|remove <player>|list]] [fatigue [set <player>]]",
+								COMMAND_USAGE_CONSOLE	= "[override [add [player]|remove [player]|list]] [fatigue [set [player]]]",
 								COMMAND_USAGE_FORMAT	= "/%s %s";
 	
 	@Override
@@ -44,9 +45,9 @@ public class SomniaCommand extends CommandBase
 		if (args.length < 2)
 			throw new WrongUsageException(getCommandUsage(sender));
 		
+		EntityPlayerMP player;
 		if (args[0].equalsIgnoreCase("override"))
 		{
-			EntityPlayerMP player;
 			if (args.length > 2)
 				player = MinecraftServer.getServer().getConfigurationManager().func_152612_a(args[2]);
 			else
@@ -67,6 +68,38 @@ public class SomniaCommand extends CommandBase
 				String[] astring = ListUtils.playersToStringArray(players);
 				ChatComponentText chatComponent = new ChatComponentText(astring.length > 0 ? joinNiceString(astring) : "Nothing to see here...");
 				sender.addChatMessage(chatComponent);
+			}
+			else
+				throw new WrongUsageException(getCommandUsage(sender));
+		}
+		else if (args[0].equalsIgnoreCase("fatigue"))
+		{
+			if (args.length > 3)
+				player = MinecraftServer.getServer().getConfigurationManager().func_152612_a(args[3]);
+			else
+			{
+				if (sender instanceof EntityPlayerMP)
+					player = (EntityPlayerMP)sender;
+				else
+					throw new WrongUsageException(String.format(COMMAND_USAGE_FORMAT, COMMAND_NAME, COMMAND_USAGE_CONSOLE));
+			}
+			
+			if (args[1].equalsIgnoreCase("set"))
+			{
+				SomniaEntityPlayerProperties props = SomniaEntityPlayerProperties.get(player);
+				if (props != null)
+				{
+					try
+					{
+						props.setFatigue(Double.parseDouble(args[2]));
+					}
+					catch (NumberFormatException nfe)
+					{
+						sender.addChatMessage(new ChatComponentText("Invalid double!"));
+					}
+				}
+				else
+					sender.addChatMessage(new ChatComponentText("props = null! Weird..."));
 			}
 			else
 				throw new WrongUsageException(getCommandUsage(sender));

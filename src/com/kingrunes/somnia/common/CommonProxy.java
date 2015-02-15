@@ -218,7 +218,7 @@ public class CommonProxy
 			if (!sleepWithArmor && Somnia.doesPlayHaveAnyArmor(event.entityPlayer))
 			{
 				event.result = EnumStatus.OTHER_PROBLEM;
-				event.entityPlayer.addChatMessage(new ChatComponentText("That armor looks uncomfortable!"));
+				event.entityPlayer.addChatMessage(new ChatComponentTranslation("somnia.status.armor"));
 				return;
 			}
 			
