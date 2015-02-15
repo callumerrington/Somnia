@@ -116,32 +116,30 @@ public class ClientTickHandler
 		ScaledResolution scaledResolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
 		String str = String.format(FATIGUE_FORMAT, ClientProxy.playerFatigue);
 		int x, y, stringWidth = fontRenderer.getStringWidth(str);
-		switch (Somnia.proxy.displayFatigue.toLowerCase())
+		String param = Somnia.proxy.displayFatigue.toLowerCase();
+		if (param.equals("tl"))
 		{
-		case "tl":
 			x = 10;
 			y = 10;
-			break;
-		case "tr":
-			x = scaledResolution.getScaledWidth()-stringWidth-10;
-			y = 10;
-			break;
-		case "bl":
-			x = 10;
-			y = scaledResolution.getScaledHeight()-fontRenderer.FONT_HEIGHT-10;
-			break;
-		case "br":
-			x = scaledResolution.getScaledWidth()-stringWidth-10;
-			y = scaledResolution.getScaledHeight()-fontRenderer.FONT_HEIGHT-10;
-			break;
-		default:
-			return;
 		}
+		else if (param.equals("tr"))
+		{
+			x = scaledResolution.getScaledWidth()-stringWidth-10;
+			y = 10;
+		}
+		else if (param.equals("bl"))
+		{
+			x = 10;
+			y = scaledResolution.getScaledHeight()-fontRenderer.FONT_HEIGHT-10;
+		}
+		else if (param.equals("br"))
+		{
+			x = scaledResolution.getScaledWidth()-stringWidth-10;
+			y = scaledResolution.getScaledHeight()-fontRenderer.FONT_HEIGHT-10;
+		}
+		else
+			return;
 		
-		
-//			x = 800;
-//			y = 100;
-//			System.out.println("x = " + x + " y = " + y);
 		fontRenderer.drawString(str, x, y, Integer.MIN_VALUE);
 	}
 }
