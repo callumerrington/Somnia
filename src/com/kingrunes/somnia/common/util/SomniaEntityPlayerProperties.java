@@ -40,8 +40,8 @@ public class SomniaEntityPlayerProperties implements IExtendedEntityProperties
 	public void loadNBTData(NBTTagCompound compound)
 	{
 		NBTTagCompound props = (NBTTagCompound) compound.getTag(PROP_NAME);
-		
-		this.fatigue = props.getDouble("fatigue");
+		if (props != null)
+			this.fatigue = props.getDouble("fatigue");
 	}
 
 	@Override
