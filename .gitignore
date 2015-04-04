@@ -9,4 +9,5 @@ bin/
 dist/
 *.jar
 __pycache__/
+*.pyc
 build_props.py
