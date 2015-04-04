@@ -112,5 +112,11 @@
 	</delete>
   </target>
   
+  <target name="clean_dist" description="clean output directory">
+	<delete includeemptydirs="true">
+		<fileset dir="${dist}" includes="**/*"/>
+	</delete>
+  </target>
+  
   <target name="build_clean" depends="gradle_dist, clean" />
 </project>
