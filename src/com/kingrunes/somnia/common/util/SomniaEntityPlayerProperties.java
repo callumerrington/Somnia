@@ -32,6 +32,7 @@ public class SomniaEntityPlayerProperties implements IExtendedEntityProperties
 		NBTTagCompound props = new NBTTagCompound();
 		
 		props.setDouble("fatigue", fatigue);
+		props.setInteger("lastSideEffectStage", lastSideEffectStage);
 		
 		compound.setTag(PROP_NAME, props);
 	}
@@ -41,7 +42,10 @@ public class SomniaEntityPlayerProperties implements IExtendedEntityProperties
 	{
 		NBTTagCompound props = (NBTTagCompound) compound.getTag(PROP_NAME);
 		if (props != null)
+		{
 			this.fatigue = props.getDouble("fatigue");
+			this.lastSideEffectStage = props.getInteger("lastSideEffectStage");
+		}
 	}
 
 	@Override
