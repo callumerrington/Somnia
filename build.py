@@ -1,4 +1,11 @@
+import platform
 import subprocess
+
+# python 2's input() tries to execute the given string?
+try:
+	_input = raw_input
+except:
+	_input = input
 
 prop_keys = ['ant', 'forge', 'build_number']
 props = {}
@@ -9,14 +16,15 @@ except (AttributeError, ImportError):
 	pass
 
 for k in prop_keys:
-	try:
-		props[k]
-	except KeyError:
-		props[k] = input("Enter missing property value for '%s': " % k)
+	if not k in props:
+		props[k] = _input("Enter missing property value for '%s': " % k)
 
 def main():
 	try:
-		subprocess.call(["cmd", "/c", props['ant'], "-Dforge=%s" % props['forge'], "-Dbuild_number=%s" % props['build_number'], "build_clean"])
+		if platform.system() == "Windows":
+			subprocess.call(["cmd", "/c", props['ant'], "-Dforge=%s" % props['forge'], "-Dbuild_number=%s" % props['build_number'], "build_clean"])
+		else:
+			subprocess.call([props['ant'], "-Dforge=%s" % props['forge'], "-Dbuild_number=%s" % props['build_number'], "build_clean"])
 	except Exception as e:
 		print("Error running ant! %s" % e)
 	
