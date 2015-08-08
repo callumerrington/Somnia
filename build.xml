@@ -109,6 +109,7 @@
   <target name="clean" description="clean up">
 	<delete includeemptydirs="true">
 		<fileset dir="${forge_src}" includes="**/*"/>
+		<fileset dir="${forge}/build/classes" includes="**/*"/>
 	</delete>
   </target>
   
