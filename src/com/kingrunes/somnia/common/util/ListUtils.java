@@ -63,7 +63,7 @@ public class ListUtils
 	{
 		String[] astring = new String[players.size()];
 		for (int i=0; i<astring.length; i++)
-			astring[i] = players.get(i).getCommandSenderName();
+			astring[i] = players.get(i).getName();
 		return astring;
 	}
 }

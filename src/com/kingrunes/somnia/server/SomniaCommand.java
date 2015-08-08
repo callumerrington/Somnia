@@ -4,6 +4,7 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 
 import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -22,7 +23,7 @@ public class SomniaCommand extends CommandBase
 								COMMAND_USAGE_FORMAT	= "/%s %s";
 	
 	@Override
-	public String getCommandName()
+	public String getName()
 	{
 		return COMMAND_NAME;
 	}
@@ -40,7 +41,7 @@ public class SomniaCommand extends CommandBase
 	}
 
 	@Override
-	public void processCommand(ICommandSender sender, String[] args)
+	public void execute(ICommandSender sender, String[] args) throws CommandException
 	{
 		if (args.length < 2)
 			throw new WrongUsageException(getCommandUsage(sender));
@@ -49,7 +50,7 @@ public class SomniaCommand extends CommandBase
 		if (args[0].equalsIgnoreCase("override"))
 		{
 			if (args.length > 2)
-				player = MinecraftServer.getServer().getConfigurationManager().func_152612_a(args[2]);
+				player = MinecraftServer.getServer().getConfigurationManager().getPlayerByUsername(args[2]);
 			else
 			{
 				if (sender instanceof EntityPlayerMP)
@@ -75,7 +76,7 @@ public class SomniaCommand extends CommandBase
 		else if (args[0].equalsIgnoreCase("fatigue"))
 		{
 			if (args.length > 3)
-				player = MinecraftServer.getServer().getConfigurationManager().func_152612_a(args[3]);
+				player = MinecraftServer.getServer().getConfigurationManager().getPlayerByUsername(args[3]);
 			else
 			{
 				if (sender instanceof EntityPlayerMP)

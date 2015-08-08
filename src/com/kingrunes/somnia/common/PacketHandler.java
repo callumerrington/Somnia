@@ -1,23 +1,21 @@
 package com.kingrunes.somnia.common;
 
 import io.netty.buffer.ByteBufInputStream;
-import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.HashMap;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientCustomPacketEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent.ServerCustomPacketEvent;
+import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 
 import com.kingrunes.somnia.Somnia;
-
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.network.FMLNetworkEvent.ClientCustomPacketEvent;
-import cpw.mods.fml.common.network.FMLNetworkEvent.ServerCustomPacketEvent;
-import cpw.mods.fml.common.network.internal.FMLProxyPacket;
 
 public class PacketHandler
 {
@@ -87,119 +85,80 @@ public class PacketHandler
 	 * Building
 	 */
 	
-	// Cache
+	// TODO: Make caching work on something other than Windows...
+	/*/ Cache
 	private static HashMap<Byte, FMLProxyPacket> cache;
 	
 	static
 	{
 		cache = new HashMap<Byte, FMLProxyPacket>();
 	}
-	//
-	
-	private static void close(OutputStream os)
-	{
-		try
-		{
-			os.close();
-		}
-		catch (IOException ioe){}
-	}
+	/*/
 	
 	public static FMLProxyPacket buildGUIOpenPacket()
 	{
+		return doBuildGUIOpenPacket();
+		/*
 		FMLProxyPacket packet = cache.get(byteOf(0x00));
 		
 		if (packet == null)
 			cache.put(byteOf(0x00), packet=doBuildGUIOpenPacket());
 		
 		return packet;
+		*/
 	}
 	
 	private static FMLProxyPacket doBuildGUIOpenPacket()
 	{
-		ByteBufOutputStream bbos = unpooled();
+		PacketBuffer buffer = unpooled();
 		
-        try
-        {
-        	bbos.writeByte(0x00);
-        	return new FMLProxyPacket(bbos.buffer(), Somnia.MOD_ID);
-        }
-        catch (IOException ioe)
-        {
-        	ioe.printStackTrace();
-        	throw new RuntimeException(ioe);
-        }
-        finally
-        {
-        	close(bbos);
-        }
+    	buffer.writeByte(0x00);
+    	return new FMLProxyPacket(buffer, Somnia.MOD_ID);
 	}
 	
 	public static FMLProxyPacket buildGUIClosePacket()
 	{
+		return doBuildGUIClosePacket();
+		/*
 		FMLProxyPacket packet = cache.get(byteOf(0x01));
 		
 		if (packet == null)
 			cache.put(byteOf(0x01), packet=doBuildGUIOpenPacket());
 		
 		return packet;
+		*/
 	}
 
 	public static FMLProxyPacket doBuildGUIClosePacket()
 	{
-		ByteBufOutputStream bbos = unpooled();
+		PacketBuffer buffer = unpooled();
 		
-        try
-        {
-        	bbos.writeByte(0x01);
-        	return new FMLProxyPacket(bbos.buffer(), Somnia.MOD_ID);
-        }
-        catch (IOException ioe)
-        {
-        	ioe.printStackTrace();
-        	throw new RuntimeException(ioe);
-        }
-        finally
-        {
-        	close(bbos);
-        }
+    	buffer.writeByte(0x01);
+    	return new FMLProxyPacket(buffer, Somnia.MOD_ID);
 	}
 	
 	public static FMLProxyPacket buildPropUpdatePacket(int target, Object... fields)
 	{
-		ByteBufOutputStream bbos = unpooled();
+		PacketBuffer buffer = unpooled();
 		
-        try
-        {
-        	bbos.writeByte(0x02);
-        	bbos.writeByte(target);
-        	bbos.writeInt(fields.length/2);
-        	for (int i=0; i<fields.length; i++)
-        	{
-        		bbos.writeByte((Integer) fields[i]);
-        		StreamUtils.writeObject(fields[++i], bbos);
-        	}
-        	
-        	return new FMLProxyPacket(bbos.buffer(), Somnia.MOD_ID);
-        }
-        catch (IOException ioe)
-        {
-        	ioe.printStackTrace();
-        }
-        finally
-        {
-        	close(bbos);
-        }
-        
-        return null;
+    	buffer.writeByte(0x02);
+    	buffer.writeByte(target);
+    	buffer.writeInt(fields.length/2);
+    	for (int i=0; i<fields.length; i++)
+    	{
+    		buffer.writeByte((Integer) fields[i]);
+    		StreamUtils.writeObject(fields[++i], buffer);
+    	}
+    	
+    	return new FMLProxyPacket(buffer, Somnia.MOD_ID);
 	}
 	
 	/*
 	 * Utils
 	 */
-	private static ByteBufOutputStream unpooled()
+	private static PacketBuffer unpooled()
 	{
-		return new ByteBufOutputStream(Unpooled.buffer());
+		return new PacketBuffer(Unpooled.buffer());
 	}
 	
 	public static Byte byteOf(int i)

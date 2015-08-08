@@ -162,7 +162,8 @@ public class GuiSelectWakeTime extends GuiScreen
 		 * Nice little hack to simulate a right click on the bed, don't try this at home kids
 		 */
 		MovingObjectPosition mop = mc.objectMouseOver;
-		mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.inventory.getCurrentItem(), mop.blockX, mop.blockY, mop.blockZ, mop.sideHit, mop.hitVec);
+		// onPlayerRightClick
+		mc.playerController.func_178890_a(mc.thePlayer, mc.theWorld, mc.thePlayer.inventory.getCurrentItem(), mop.getBlockPos(), mop.sideHit, mop.hitVec);
 	}
 
 	@Override

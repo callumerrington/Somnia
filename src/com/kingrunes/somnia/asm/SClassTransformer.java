@@ -11,6 +11,7 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -21,25 +22,23 @@ public class SClassTransformer implements IClassTransformer
 	@Override
 	public byte[] transform(String name, String transformedName, byte[] bytes)
 	{
-		
-		if (name.equalsIgnoreCase("cpw.mods.fml.common.FMLCommonHandler"))
-			return patchFMLCommonHandler(bytes);
-		else if (name.equalsIgnoreCase("net.minecraft.client.renderer.EntityRenderer"))
+		if (name.equalsIgnoreCase("net.minecraft.client.renderer.EntityRenderer"))
 			return patchEntityRenderer(bytes, false);
-		else if (name.equalsIgnoreCase("blt"))
+		else if (name.equalsIgnoreCase("cji"))
 			return patchEntityRenderer(bytes, true);
 		else if (name.equalsIgnoreCase("net.minecraft.world.WorldServer"))
 			return patchWorldServer(bytes, false);
-		else if (name.equalsIgnoreCase("mt"))
+		else if (name.equalsIgnoreCase("qt"))
 			return patchWorldServer(bytes, true);
 		else if (name.equalsIgnoreCase("net.minecraft.world.chunk.Chunk"))
 			return patchChunk(bytes, false);
-		else if (name.equalsIgnoreCase("apx"))
+		else if (name.equalsIgnoreCase("bfh"))
 			return patchChunk(bytes, true);
+		else if (name.equalsIgnoreCase("net.minecraft.server.MinecraftServer"))
+			return patchMinecraftServer(bytes);
 		return bytes;
 	}
 
-	@SuppressWarnings("deprecation")
 	private byte[] patchFMLCommonHandler(byte[] bytes)
 	{
 		String methodName = "onPostServerTick";
@@ -62,7 +61,6 @@ public class SClassTransformer implements IClassTransformer
     			toInject.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "com/kingrunes/somnia/Somnia", "tick", "()V"));
         			
     			m.instructions.insertBefore(fain, toInject);
-    			
                 break;
             }
         }
@@ -123,7 +121,7 @@ public class SClassTransformer implements IClassTransformer
 	
 	private byte[] patchWorldServer(byte[] bytes, boolean obf)
 	{
-		String 	methodTick = obf ? "b" : "tick",
+		String 	methodTick = obf ? "c" : "tick",
 				methodGetGameRule = obf ? "b" : "getGameRuleBooleanValue";
 		
 		ClassNode classNode = new ClassNode();
@@ -176,7 +174,7 @@ public class SClassTransformer implements IClassTransformer
 	private byte[] patchChunk(byte[] bytes, boolean obf)
 	{
 		String methodName = obf ? "b" : "func_150804_b";
-		String methodName2 = obf ? "p" : "func_150809_p";
+		String methodName2 = obf ? "n" : "func_150809_p";
 		
 		ClassNode classNode = new ClassNode();
         ClassReader classReader = new ClassReader(bytes);
@@ -206,6 +204,44 @@ public class SClassTransformer implements IClassTransformer
         			}
         		}
         		break;
+        	}
+        }
+        
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+        classNode.accept(cw);
+        return cw.toByteArray();
+	}
+	
+	private byte[] patchMinecraftServer(byte[] bytes)
+	{
+		ClassNode classNode = new ClassNode();
+        ClassReader classReader = new ClassReader(bytes);
+        classReader.accept(classNode, 0);
+        
+        Iterator<MethodNode> methods = classNode.methods.iterator();
+        AbstractInsnNode ain = null;
+        while(methods.hasNext())
+        {
+        	MethodNode m = methods.next();
+        	if ((m.name.equals("y") || m.name.equals("tick")) && m.desc.equals("()V"))
+        	{
+        		AbstractInsnNode lrin = null;
+        		Iterator<AbstractInsnNode> iter = m.instructions.iterator();
+        		while (iter.hasNext())
+        		{
+					ain = iter.next();
+					if (ain instanceof InsnNode && ((InsnNode)ain).getOpcode() == Opcodes.RETURN)
+						lrin = ain;
+				}
+        		
+        		if (lrin != null)
+        		{
+        			InsnList toInject = new InsnList();
+        			toInject.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/kingrunes/somnia/Somnia", "tick", "()V", false));
+        			
+        			m.instructions.insertBefore(lrin, toInject);
+        		}
+                break;
         	}
         }
         

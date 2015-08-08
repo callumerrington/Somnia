@@ -16,16 +16,15 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
+import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 
 import com.kingrunes.somnia.Somnia;
 import com.kingrunes.somnia.common.CommonProxy;
 import com.kingrunes.somnia.common.PacketHandler;
 import com.kingrunes.somnia.common.util.SomniaState;
-
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.gameevent.TickEvent;
-import cpw.mods.fml.common.gameevent.TickEvent.Phase;
-import cpw.mods.fml.common.network.internal.FMLProxyPacket;
 
 public class ServerTickHandler
 {
@@ -86,7 +85,7 @@ public class ServerTickHandler
 					0x01, currentState == ACTIVE ? Somnia.timeStringForWorldTime(worldServer.getWorldTime()) : "f:"+currentState.toString()
 				);
 				
-				Somnia.channel.sendToDimension(packet, worldServer.provider.dimensionId);
+				Somnia.channel.sendToDimension(packet, worldServer.provider.getDimensionId());
 			}
 		}
 		
@@ -138,7 +137,7 @@ public class ServerTickHandler
 			doMultipliedServerTicking();
 		delta = System.currentTimeMillis() - delta;
 		
-		MinecraftServer.getServer().getConfigurationManager().sendPacketToAllPlayersInDimension(new S03PacketTimeUpdate(worldServer.getTotalWorldTime(), worldServer.getWorldTime(), worldServer.getGameRules().getGameRuleBooleanValue("doDaylightCycle")), worldServer.provider.dimensionId);
+		MinecraftServer.getServer().getConfigurationManager().sendPacketToAllPlayersInDimension(new S03PacketTimeUpdate(worldServer.getTotalWorldTime(), worldServer.getWorldTime(), worldServer.getGameRules().getGameRuleBooleanValue("doDaylightCycle")), worldServer.provider.getDimensionId());
 		
 		if (delta > (50.0d/activeTickHandlers))
 			multiplier -= .1d;

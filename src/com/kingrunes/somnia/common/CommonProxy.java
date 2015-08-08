@@ -12,9 +12,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayer.EnumStatus;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentTranslation;
-import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
@@ -22,6 +22,8 @@ import net.minecraftforge.common.config.Property;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import com.kingrunes.somnia.Somnia;
 import com.kingrunes.somnia.common.util.ClassUtils;
@@ -29,9 +31,6 @@ import com.kingrunes.somnia.common.util.SomniaEntityPlayerProperties;
 import com.kingrunes.somnia.common.util.TimePeriod;
 import com.kingrunes.somnia.server.ForgeEventHandler;
 import com.kingrunes.somnia.server.ServerTickHandler;
-
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 public class CommonProxy
 {
@@ -199,6 +198,8 @@ public class CommonProxy
 		if (event.result != null && event.result != EnumStatus.OK)
 			return;
 		
+		BlockPos pos = event.pos;
+		
 		if (!event.entityPlayer.worldObj.isRemote)
         {
 			SomniaEntityPlayerProperties props = SomniaEntityPlayerProperties.get(event.entityPlayer);
@@ -234,7 +235,7 @@ public class CommonProxy
                 return;
             }
 
-            if (Math.abs(event.entityPlayer.posX - (double)event.x) > 3.0d || Math.abs(event.entityPlayer.posY - (double)event.y) > 2.0d || Math.abs(event.entityPlayer.posZ - (double)event.z) > 3.0d)
+            if (Math.abs(event.entityPlayer.posX - (double)pos.getX()) > 3.0d || Math.abs(event.entityPlayer.posY - (double)pos.getY()) > 2.0d || Math.abs(event.entityPlayer.posZ - (double)pos.getZ()) > 3.0d)
             {
                 event.result = EnumStatus.TOO_FAR_AWAY;
                 return;
@@ -245,7 +246,7 @@ public class CommonProxy
 	            double d0 = 8.0D;
 	            double d1 = 5.0D;
 	            
-				List<?> list = event.entityPlayer.worldObj.getEntitiesWithinAABB(EntityMob.class, AxisAlignedBB.getBoundingBox((double)event.x - d0, (double)event.y - d1, (double)event.z - d0, (double)event.x + d0, (double)event.y + d1, (double)event.z + d0));
+				List<?> list = event.entityPlayer.worldObj.getEntitiesWithinAABB(EntityMob.class, new AxisAlignedBB((double)pos.getX() - d0, (double)pos.getY() - d1, (double)pos.getZ() - d0, (double)pos.getX() + d0, (double)pos.getY() + d1, (double)pos.getZ() + d0));
 	
 	            if (!list.isEmpty())
 	            {
@@ -261,38 +262,47 @@ public class CommonProxy
         }
 
         ClassUtils.setSize(event.entityPlayer, 0.2F, 0.2F);
-        event.entityPlayer.yOffset = 0.2F;
+//        event.entityPlayer.yOffset = 0.2F;
 
-        if (event.entityPlayer.worldObj.blockExists(event.x, event.y, event.z))
+        if (event.entityPlayer.worldObj.isBlockLoaded(pos))
         {
-        	int l = event.entityPlayer.worldObj.getBlock(event.x, event.y, event.z).getBedDirection(event.entityPlayer.worldObj, event.x, event.y, event.z);
+        	EnumFacing enumFacing = event.entityPlayer.worldObj.getBlockState(pos).getBlock().getBedDirection(event.entityLiving.worldObj, pos);
             float f1 = 0.5F;
             float f = 0.5F;
+            event.entityPlayer.renderOffsetX = 0.0F;
+            event.entityPlayer.renderOffsetZ = 0.0F;
 
-            switch (l)
+            switch (enumFacing) // FACING_LOOKUP isn't visible.. lets do this our own way
             {
-                case 0:
+                case SOUTH:
                     f1 = 0.9F;
+                    event.entityPlayer.renderOffsetX = -1.8F;
                     break;
-                case 1:
+                case NORTH:
                     f = 0.1F;
+                    event.entityPlayer.renderOffsetX = 1.8F;
                     break;
-                case 2:
+                case WEST:
                     f1 = 0.1F;
+                    event.entityPlayer.renderOffsetX = 1.8F;
                     break;
-                case 3:
+                case EAST:
                     f = 0.9F;
+                    event.entityPlayer.renderOffsetX = -1.8F;
+                    break;
+                default:
+                	break;
             }
 
-            ClassUtils.call_func_71013_b(event.entityPlayer, l);
-            event.entityPlayer.setPosition((double)((float)event.x + f), (double)((float)event.y + 0.9375F), (double)((float)event.z + f1));
+//            ClassUtils.call_func_71013_b(event.entityPlayer, l);
+            event.entityPlayer.setPosition((double)((float)pos.getX() + f), (double)((float)pos.getY() + 0.9375F), (double)((float)pos.getZ() + f1));
         }
         else
-        	event.entityPlayer.setPosition((double)((float)event.x + 0.5F), (double)((float)event.y + 0.9375F), (double)((float)event.z + 0.5F));
+        	event.entityPlayer.setPosition((double)((float)pos.getX() + 0.5F), (double)((float)pos.getY() + 0.9375F), (double)((float)pos.getZ() + 0.5F));
 
         ClassUtils.setSleeping(event.entityPlayer, true);
         ClassUtils.setSleepTimer(event.entityPlayer, 0);
-        event.entityPlayer.playerLocation = new ChunkCoordinates(event.x, event.y, event.z);
+        event.entityPlayer.playerLocation = event.pos;
         event.entityPlayer.motionX = event.entityPlayer.motionZ = event.entityPlayer.motionY = 0.0D;
 
         if (!event.entityPlayer.worldObj.isRemote)

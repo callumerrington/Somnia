@@ -5,15 +5,14 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraftforge.event.entity.EntityEvent.EntityConstructing;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 
 import com.kingrunes.somnia.Somnia;
 import com.kingrunes.somnia.common.PacketHandler;
 import com.kingrunes.somnia.common.PlayerSleepTickHandler;
 import com.kingrunes.somnia.common.util.SomniaEntityPlayerProperties;
-
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
-import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 
 public class ForgeEventHandler
 {

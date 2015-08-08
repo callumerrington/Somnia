@@ -8,13 +8,13 @@ import net.minecraft.client.gui.GuiSleepMP;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.network.play.client.C0BPacketEntityAction;
+import net.minecraft.network.play.client.C0BPacketEntityAction.Action;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 
 import com.kingrunes.somnia.Somnia;
 import com.kingrunes.somnia.client.gui.GuiSomnia;
-
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
-import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 
 public class ClientTickHandler
 {
@@ -101,7 +101,7 @@ public class ClientTickHandler
 		if (Somnia.clientAutoWakeTime > -1 && mc.thePlayer.isPlayerSleeping() && mc.theWorld.getTotalWorldTime() >= Somnia.clientAutoWakeTime)
 		{
 			Somnia.clientAutoWakeTime = -1;
-			mc.thePlayer.sendQueue.addToSendQueue(new C0BPacketEntityAction(mc.thePlayer, 3));
+			mc.thePlayer.sendQueue.addToSendQueue(new C0BPacketEntityAction(mc.thePlayer, Action.STOP_SLEEPING));
 		}
 	}
 	
@@ -112,7 +112,7 @@ public class ClientTickHandler
 		if (event.phase != Phase.END || ClientProxy.playerFatigue == -1 || (mc.currentScreen != null && !(mc.currentScreen instanceof GuiIngameMenu) && !(mc.currentScreen instanceof GuiSomnia)))
 			return;
 		
-		FontRenderer fontRenderer = mc.fontRenderer;
+		FontRenderer fontRenderer = mc.fontRendererObj;
 		ScaledResolution scaledResolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
 		String str = String.format(FATIGUE_FORMAT, ClientProxy.playerFatigue);
 		int x, y, stringWidth = fontRenderer.getStringWidth(str);

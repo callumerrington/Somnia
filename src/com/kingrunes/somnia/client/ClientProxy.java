@@ -2,25 +2,30 @@ package com.kingrunes.somnia.client;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.concurrent.Callable;
 
 import net.minecraft.block.BlockBed;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import com.kingrunes.somnia.Somnia;
 import com.kingrunes.somnia.client.gui.GuiSelectWakeTime;
 import com.kingrunes.somnia.client.gui.GuiSomnia;
 import com.kingrunes.somnia.common.CommonProxy;
-
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class ClientProxy extends CommonProxy
@@ -40,22 +45,33 @@ public class ClientProxy extends CommonProxy
 	{
 		if (!event.world.isRemote)
 			return;
+
+		World worldIn = event.world;
+		BlockPos pos = event.pos;
 		
-		if (event.action.equals(Action.RIGHT_CLICK_BLOCK) && event.entity.worldObj.getBlock(event.x, event.y, event.z).getUnlocalizedName().equals("tile.bed"))
+		if (pos == null)
+			return;
+		
+		IBlockState state = worldIn.getBlockState(pos);
+		
+		if (event.action.equals(Action.RIGHT_CLICK_BLOCK) && state.getBlock() == Blocks.bed)
 		{
-			int i1 = event.entity.worldObj.getBlockMetadata(event.x, event.y, event.z);
-			int j1 = i1 & 3;
+//			int i1 = event.entity.worldObj.getBlockMetadata(event.x, event.y, event.z);
+//			int j1 = i1 & 3;
 			
-			int x = event.x;
-			int z = event.z;
+			if (state.getValue(BlockBed.PART) != BlockBed.EnumPartType.HEAD)
+            {
+                pos = pos.offset((EnumFacing)state.getValue(BlockBed.FACING));
+                state = worldIn.getBlockState(pos);
+
+                if (state.getBlock() != Blocks.bed)
+                {
+                    event.setCanceled(true);
+                    return;
+                }
+            }
 			
-			if ((i1 & 8) == 0)
-			{
-				x += BlockBed.field_149981_a[j1][0]; // footBlockToHeadBlockMap
-	            z += BlockBed.field_149981_a[j1][1]; //
-			}
-			
-			if (Math.abs(event.entityPlayer.posX - (double)x) < 3.0D && Math.abs(event.entityPlayer.posY - (double)event.y) < 2.0D && Math.abs(event.entityPlayer.posZ - (double)z) < 3.0D)
+			if (Math.abs(event.entityPlayer.posX - (double)pos.getX()) < 3.0D && Math.abs(event.entityPlayer.posY - (double)pos.getY()) < 2.0D && Math.abs(event.entityPlayer.posZ - (double)pos.getZ()) < 3.0D)
 			{
 				ItemStack currentItem = event.entityPlayer.inventory.getCurrentItem();
 				if (currentItem != null && currentItem.getItem().getUnlocalizedName().equals("item.clock"))
@@ -79,7 +95,19 @@ public class ClientProxy extends CommonProxy
 	public void handleGUIOpenPacket() throws IOException
 	{
 		if (somniaGui)
-			Minecraft.getMinecraft().displayGuiScreen(new GuiSomnia());
+		{
+			final Minecraft mc = Minecraft.getMinecraft();
+			
+			mc.addScheduledTask(new Callable<Void>()
+			{
+				@Override
+				public Void call() throws Exception
+				{
+					mc.displayGuiScreen(new GuiSomnia());
+					return null;
+				}
+			});
+		}
 	}
 
 	@Override

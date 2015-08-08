@@ -11,6 +11,17 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.Mod.Instance;
+import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.network.FMLEventChannel;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import org.lwjgl.opengl.GL11;
 
@@ -19,18 +30,6 @@ import com.kingrunes.somnia.common.PacketHandler;
 import com.kingrunes.somnia.common.util.SomniaState;
 import com.kingrunes.somnia.server.ServerTickHandler;
 import com.kingrunes.somnia.server.SomniaCommand;
-
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.Mod.Instance;
-import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
-import cpw.mods.fml.common.network.FMLEventChannel;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @Mod(modid = Somnia.MOD_ID, name = Somnia.NAME, version="-au")
 public class Somnia
@@ -83,7 +82,7 @@ public class Somnia
 		event.registerServerCommand(new SomniaCommand());
 	}
 	
-	public void tick()
+	public static void tick()
 	{
 		synchronized (Somnia.instance.tickHandlers)
 		{
@@ -171,7 +170,7 @@ public class Somnia
 		
 		for (ServerTickHandler serverTickHandler : instance.tickHandlers)
 		{
-			if (serverTickHandler.worldServer == chunk.worldObj)
+			if (serverTickHandler.worldServer == chunk.getWorld())
 			{
 				if (serverTickHandler.currentState != SomniaState.ACTIVE)
 					chunk.func_150809_p();

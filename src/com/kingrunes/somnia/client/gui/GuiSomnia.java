@@ -1,25 +1,35 @@
 package com.kingrunes.somnia.client.gui;
 
+import static org.lwjgl.opengl.GL11.GL_BLEND;
+import static org.lwjgl.opengl.GL11.GL_FOG;
+import static org.lwjgl.opengl.GL11.GL_LIGHTING;
+import static org.lwjgl.opengl.GL11.glColor4f;
+import static org.lwjgl.opengl.GL11.glDisable;
+import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glPopMatrix;
+import static org.lwjgl.opengl.GL11.glPushMatrix;
+import static org.lwjgl.opengl.GL11.glScalef;
+import static org.lwjgl.opengl.GL11.glTranslatef;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiSleepMP;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.C0BPacketEntityAction;
+import net.minecraft.network.play.client.C0BPacketEntityAction.Action;
 import net.minecraft.util.ChatComponentTranslation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import com.kingrunes.somnia.Somnia;
 import com.kingrunes.somnia.common.StreamUtils;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
-import static org.lwjgl.opengl.GL11.*;
 
 @SideOnly(Side.CLIENT)
 public class GuiSomnia extends GuiSleepMP
@@ -40,7 +50,7 @@ public class GuiSomnia extends GuiSleepMP
 								BYTES_RED = new byte[]{ (byte) 255, 0, 0 },
 								BYTES_GOLD = new byte[]{ (byte) 240, (byte) 200, 30 };
 	
-	private static RenderItem presetIconRenderer = new RenderItem();
+	private RenderItem presetIconRenderer = Minecraft.getMinecraft().getRenderItem();
 	private static ItemStack clockItemStack = new ItemStack(Item.getItemById(347));
 
 	private List<Double> speedValues = new ArrayList<Double>();
@@ -60,7 +70,7 @@ public class GuiSomnia extends GuiSleepMP
 	{
 		super.onGuiClosed();
 		if (this.mc.thePlayer != null) // save clients from outdated servers causing NPEs
-			this.mc.thePlayer.sendQueue.addToSendQueue(new C0BPacketEntityAction(this.mc.thePlayer, 3));
+			this.mc.thePlayer.sendQueue.addToSendQueue(new C0BPacketEntityAction(this.mc.thePlayer, Action.STOP_SLEEPING));
 	}
 	
 	@Override
@@ -172,8 +182,6 @@ public class GuiSomnia extends GuiSleepMP
 			glScalef(scale, scale, 1.0f);
 			presetIconRenderer.renderItemIntoGUI
 			(
-				fontRendererObj,
-				this.mc.renderEngine,
 				clockItemStack,
 				0, 0
 			);

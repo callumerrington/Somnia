@@ -2,11 +2,11 @@ package com.kingrunes.somnia.asm;
 
 import java.util.Map;
 
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin.MCVersion;
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
+import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
+import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.MCVersion;
+import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
 
-@MCVersion(value = "1.7.10")
+@MCVersion(value = "1.8")
 @TransformerExclusions(value={"com.kingrunes.somnia.asm"})
 public class SFMLLoadingPlugin implements IFMLLoadingPlugin
 {
