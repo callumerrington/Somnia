@@ -10,7 +10,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -37,9 +36,6 @@ public class Somnia
 	public static final String MOD_ID = "Somnia";
 	public static final String NAME = "Somnia";
 	public static final String VERSION = SomniaVersion.getVersionString();
-	
-	public Configuration config;
-	//public HashMap<String, Integer> player
 	
 	public List<ServerTickHandler> tickHandlers;
 	public List<WeakReference<EntityPlayerMP>> ignoreList;

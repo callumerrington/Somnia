@@ -5,7 +5,6 @@ import io.netty.buffer.Unpooled;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.HashMap;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
