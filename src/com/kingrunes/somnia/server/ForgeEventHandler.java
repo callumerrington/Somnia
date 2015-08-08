@@ -19,7 +19,7 @@ public class ForgeEventHandler
 	@SubscribeEvent
 	public void onEntityConstructing(EntityConstructing event)
 	{
-		if (event.entity.worldObj != null && !event.entity.worldObj.isRemote && event.entity instanceof EntityPlayer)
+		if (event.entity != null && event.entity.worldObj != null && !event.entity.worldObj.isRemote && event.entity instanceof EntityPlayer)
 			SomniaEntityPlayerProperties.register((EntityPlayer) event.entity);
 	}
 	
