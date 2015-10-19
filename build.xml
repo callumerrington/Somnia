@@ -37,7 +37,7 @@
 		var versionClass = project.getProperty("version_class");
 		
 		var regexPattern = java.util.regex.Pattern.compile("([^\\\s_]*_?[A-Z]*_[A-Z]*) = ([0-9]*)");
-        var versionFile = new java.io.File(project.getProperty("forge_src")+"/"+versionClass.replace(".", "/")+".java");
+        var versionFile = new java.io.File(project.getProperty("forge_src")+"/"+versionClass.replaceAll("\\.", "/")+".java");
 		var fileReader = new java.io.BufferedReader(new java.io.FileReader(versionFile));
 		var lines = new java.util.ArrayList();
 		var str;
