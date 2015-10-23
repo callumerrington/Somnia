@@ -2,12 +2,14 @@ package com.kingrunes.somnia.client;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.concurrent.Callable;
 
 import net.minecraft.block.BlockBed;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
@@ -33,6 +35,22 @@ public class ClientProxy extends CommonProxy
 		super.register();
 		MinecraftForge.EVENT_BUS.register(this);
 		FMLCommonHandler.instance().bus().register(new ClientTickHandler());
+	}
+
+	@Override
+	public void printMessage(final String message)
+	{
+		final Minecraft mc = Minecraft.getMinecraft();
+		mc.func_152343_a(
+				new Callable<Void>()
+				{
+					@Override
+					public Void call() throws Exception
+					{
+						mc.thePlayer.addChatMessage(new ChatComponentText("[Somnia] " + message));
+						return null;
+					}
+				});
 	}
 
 	@SubscribeEvent

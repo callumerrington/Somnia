@@ -12,7 +12,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayer.EnumStatus;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.WorldServer;
@@ -24,6 +23,8 @@ import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.world.WorldEvent;
 
 import com.kingrunes.somnia.Somnia;
+import com.kingrunes.somnia.SomniaVersion;
+import com.kingrunes.somnia.SomniaVersion.UpdateCheckerEntry;
 import com.kingrunes.somnia.common.util.ClassUtils;
 import com.kingrunes.somnia.common.util.SomniaEntityPlayerProperties;
 import com.kingrunes.somnia.common.util.TimePeriod;
@@ -55,6 +56,7 @@ public class CommonProxy
 						somniaGui,
 						muteSoundWhenSleeping,
 						ignoreMonsters,
+						checkForUpdates,
 						disableCreatureSpawning,
 						disableRendering,
 						disableMoodSoundAndLightCheck;
@@ -62,6 +64,8 @@ public class CommonProxy
 	public String		displayFatigue;
 	
 	public static ForgeEventHandler forgeEventHandler;
+	
+	private static long lastUpdateCheck = 0l;
 	
 	public void configure(File file)
 	{
@@ -119,6 +123,7 @@ public class CommonProxy
 		somniaGui = config.get("options", "somniaGui", true).getBoolean(true);
 		muteSoundWhenSleeping = config.get("options", "muteSoundWhenSleeping", false).getBoolean(false);
 		ignoreMonsters = config.get("options", "ignoreMonsters", false).getBoolean(false);
+		checkForUpdates = config.get("options", "checkForUpdates", true).getBoolean(true);
 
 		/*
 		 * Performance
@@ -141,14 +146,66 @@ public class CommonProxy
 		FMLCommonHandler.instance().bus().register(forgeEventHandler);
 	}
 	
+	/*
+	 * - Are updates enabled in the config?
+	 * - Are we on the client thread? Yes - run, No - run _only_ if on dedicated server
+	 * - Has it been an hour since we last checked for updates?
+	 */
+	public boolean shouldCheckForUpdates()
+	{
+		return checkForUpdates && (FMLCommonHandler.instance().getEffectiveSide().isClient() != getClass().equals(CommonProxy.class)) && System.currentTimeMillis()-lastUpdateCheck > 3600000l;
+	}
+	
+	private void checkForUpdates()
+	{
+		lastUpdateCheck = System.currentTimeMillis();
+		Thread thread = new Thread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				System.out.println("[Somnia] Checking for updates...");
+				UpdateCheckerEntry result;
+				try
+				{
+					result = SomniaVersion.checkForUpdates();
+					
+					if (result != null)
+					{
+						printMessage(String.format("Somnia %s is available for download from: %s", result.getVersionString(), result.getUrl()));
+						if (result.getComment().length() > 0)
+							printMessage("Comment: " + result.getComment());
+					}
+				}
+				catch (IOException e) // All we can do is log it
+				{
+					e.printStackTrace();
+				}
+			}
+		});
+		thread.setName("Somnia-Updater");
+		thread.start();
+//		HashMap<String, UpdateCheckerEntry[]> map = new HashMap<String, SomniaVersion.UpdateCheckerEntry[]>();
+//		map.put("1.7.10", new UpdateCheckerEntry[]{ new UpdateCheckerEntry("1.7.10", "memes", "lel") });
+//		System.out.println(new Gson().toJson(new SomniaVersion.UpdateCheckerResponse(map)));
+	}
+	
+	public void printMessage(String message)
+	{
+		System.out.println("[Somnia] " + message);
+	}
+
 	@SubscribeEvent
 	public void worldLoadHook(WorldEvent.Load event)
 	{
+		if (shouldCheckForUpdates())
+			checkForUpdates();
+		
 		if (event.world instanceof WorldServer)
 		{
 			WorldServer worldServer = (WorldServer)event.world;
 			Somnia.instance.tickHandlers.add(new ServerTickHandler(worldServer));
-			System.out.println("[Somnia] Registering tick handler for loading world!");
+			System.out.println("[Somnia] Registering tick handler for loading world [" + worldServer.provider.dimensionId + "]");
 		}
 	}
 	
@@ -165,7 +222,7 @@ public class CommonProxy
 				serverTickHandler = (ServerTickHandler) iter.next();
 				if (serverTickHandler.worldServer == worldServer)
 				{
-					System.out.println("[Somnia] Removing tick handler for unloading world!");
+					System.out.println("[Somnia] Removing tick handler for unloading world [" + worldServer.provider.dimensionId + "]");
 					iter.remove();
 					break;
 				}
@@ -320,4 +377,5 @@ public class CommonProxy
 
 	public void handleGUIClosePacket(EntityPlayerMP player)
 	{}
+
 }
