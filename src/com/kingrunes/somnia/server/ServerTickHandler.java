@@ -172,7 +172,13 @@ public class ServerTickHandler
 		 * Work around for making sure fatigue is updated with every tick (including Somnia ticks)
 		 */
 		for (Object obj : worldServer.playerEntities)
-			CommonProxy.forgeEventHandler.onPlayerTick(new TickEvent.PlayerTickEvent(Phase.START, (EntityPlayer) obj));
+		{
+			if (obj instanceof EntityPlayerMP)
+			{
+				EntityPlayerMP playerMp = (EntityPlayerMP) obj;
+				playerMp.onUpdateEntity();
+			}
+		}
 		
 		incrementCounters();
 	}
