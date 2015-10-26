@@ -1,5 +1,7 @@
 package com.kingrunes.somnia.client.gui;
 
+import static org.lwjgl.opengl.GL11.*;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,7 +10,7 @@ import java.util.List;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiSleepMP;
 import net.minecraft.client.renderer.entity.RenderItem;
-import net.minecraft.item.Item;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.C0BPacketEntityAction;
 import net.minecraft.util.ChatComponentTranslation;
@@ -18,8 +20,6 @@ import com.kingrunes.somnia.common.StreamUtils;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-
-import static org.lwjgl.opengl.GL11.*;
 
 @SideOnly(Side.CLIENT)
 public class GuiSomnia extends GuiSleepMP
@@ -41,7 +41,7 @@ public class GuiSomnia extends GuiSleepMP
 								BYTES_GOLD = new byte[]{ (byte) 240, (byte) 200, 30 };
 	
 	private static RenderItem presetIconRenderer = new RenderItem();
-	private static ItemStack clockItemStack = new ItemStack(Item.getItemById(347));
+	private static ItemStack clockItemStack = new ItemStack(Items.clock);
 
 	private List<Double> speedValues = new ArrayList<Double>();
 	

@@ -8,6 +8,8 @@ import net.minecraft.block.BlockBed;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.common.MinecraftForge;
@@ -59,7 +61,7 @@ public class ClientProxy extends CommonProxy
 		if (!event.world.isRemote)
 			return;
 		
-		if (event.action.equals(Action.RIGHT_CLICK_BLOCK) && event.entity.worldObj.getBlock(event.x, event.y, event.z).getUnlocalizedName().equals("tile.bed"))
+		if (event.action.equals(Action.RIGHT_CLICK_BLOCK) && event.entity.worldObj.getBlock(event.x, event.y, event.z).equals(Blocks.bed))
 		{
 			int i1 = event.entity.worldObj.getBlockMetadata(event.x, event.y, event.z);
 			int j1 = i1 & 3;
@@ -73,10 +75,10 @@ public class ClientProxy extends CommonProxy
 	            z += BlockBed.field_149981_a[j1][1]; //
 			}
 			
-			if (Math.abs(event.entityPlayer.posX - (double)x) < 3.0D && Math.abs(event.entityPlayer.posY - (double)event.y) < 2.0D && Math.abs(event.entityPlayer.posZ - (double)z) < 3.0D)
+			if (Math.abs(event.entityPlayer.posX - (double)x) < 3.0D && Math.abs(event.entityPlayer.posY - (double)event.y) < 3.65D && Math.abs(event.entityPlayer.posZ - (double)z) < 3.0D)
 			{
 				ItemStack currentItem = event.entityPlayer.inventory.getCurrentItem();
-				if (currentItem != null && currentItem.getItem().getUnlocalizedName().equals("item.clock"))
+				if (currentItem != null && currentItem.getItem().equals(Items.clock))
 				{
 					event.setCanceled(true);
 					Minecraft.getMinecraft().displayGuiScreen(new GuiSelectWakeTime());
