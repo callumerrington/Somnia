@@ -38,10 +38,13 @@ public class ForgeEventHandler
 		
 		boolean isSleeping = PlayerSleepTickHandler.serverState.sleepOverride || player.isPlayerSleeping();
 		
-		if (isSleeping)
-			fatigue -= Somnia.proxy.fatigueReplenishRate;
-		else
-			fatigue += Somnia.proxy.fatigueRate;
+		if (!player.capabilities.isCreativeMode)
+		{
+			if (isSleeping)
+				fatigue -= Somnia.proxy.fatigueReplenishRate;
+			else
+				fatigue += Somnia.proxy.fatigueRate;
+		}
 		
 		if (fatigue > 100.0d)
 			fatigue = 100.0d;
@@ -50,13 +53,13 @@ public class ForgeEventHandler
 //		fatigue = 69.8d;
 		props.setFatigue(fatigue);
 		
-		if (++props.fatigueUpdateCounter >= 100)
+		if (++props.fatigueUpdateCounter >= 100 || props.fatigueUpdateCounter == 0)
 		{
 			props.fatigueUpdateCounter = 0;
-			Somnia.channel.sendTo(PacketHandler.buildPropUpdatePacket(0x01, 0x00, fatigue), (EntityPlayerMP) player);
+			sendFatigueUpdate((EntityPlayerMP) player, fatigue);
 			
 			// Side effects
-			if (Somnia.proxy.fatigueSideEffects)
+			if (Somnia.proxy.fatigueSideEffects && !player.capabilities.isCreativeMode)
 			{
 				if (fatigue > 70.0d && props.lastSideEffectStage < 70)
 				{
@@ -79,5 +82,10 @@ public class ForgeEventHandler
 					props.lastSideEffectStage = -1;
 			}
 		}
+	}
+	
+	public static void sendFatigueUpdate(EntityPlayerMP player, double fatigue)
+	{
+		Somnia.channel.sendTo(PacketHandler.buildPropUpdatePacket(0x01, 0x00, fatigue), player);
 	}
 }

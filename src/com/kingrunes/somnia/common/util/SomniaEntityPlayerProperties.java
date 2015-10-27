@@ -11,7 +11,7 @@ public class SomniaEntityPlayerProperties implements IExtendedEntityProperties
 	public static final String PROP_NAME = "somnia_player_props";
 	
 	private double fatigue;
-	public int fatigueUpdateCounter = 0, lastSideEffectStage = -1;
+	public int fatigueUpdateCounter = -1, lastSideEffectStage = -1;
 	
 	public static SomniaEntityPlayerProperties register(EntityPlayer player)
 	{

@@ -92,6 +92,7 @@ public class SomniaCommand extends CommandBase
 					try
 					{
 						props.setFatigue(Double.parseDouble(args[2]));
+						ForgeEventHandler.sendFatigueUpdate(player, props.getFatigue());
 					}
 					catch (NumberFormatException nfe)
 					{
@@ -103,6 +104,7 @@ public class SomniaCommand extends CommandBase
 			}
 			else
 				throw new WrongUsageException(getCommandUsage(sender));
+			
 		}
 	}
 }
