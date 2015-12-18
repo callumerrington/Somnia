@@ -235,7 +235,7 @@ public class CommonProxy
 	{
 		if (event.entityLiving instanceof EntityPlayerMP)
 		{
-			if (!((EntityPlayer)event.entityLiving).isPlayerSleeping())
+			if (!PlayerSleepTickHandler.serverState.sleepOverride)
 				return;
 			
 	        Somnia.channel.sendTo(PacketHandler.buildGUIClosePacket(), (EntityPlayerMP) event.entityLiving);
