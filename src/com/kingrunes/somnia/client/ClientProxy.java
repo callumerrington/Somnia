@@ -87,7 +87,7 @@ public class ClientProxy extends CommonProxy
 				{
 					// Wake at next sunrise/sunset (whichever comes first)
 					long totalWorldTime = event.world.getTotalWorldTime();
-					Somnia.clientAutoWakeTime = Somnia.calculateWakeTime(totalWorldTime, totalWorldTime % 24000 > 12000 ? 0 : 12000);
+					Somnia.clientAutoWakeTime = Somnia.calculateWakeTime(totalWorldTime, totalWorldTime % Somnia.proxy.ticksPerDay > Somnia.proxy.halfTicksPerDay ? 0 : Somnia.proxy.halfTicksPerDay);
 				}
 			}
 		}

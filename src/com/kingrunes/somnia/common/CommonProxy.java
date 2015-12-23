@@ -62,6 +62,9 @@ public class CommonProxy
 						disableMoodSoundAndLightCheck;
 	
 	public String		displayFatigue;
+
+	public int			ticksPerDay,
+						halfTicksPerDay;
 	
 	public static ForgeEventHandler forgeEventHandler;
 	
@@ -92,6 +95,8 @@ public class CommonProxy
 						config.get("timings", "validSleepStart", 0).getInt(),
 						config.get("timings", "validSleepEnd", 24000).getInt()
 						);
+		ticksPerDay = config.get("timings", "ticksPerDay", 24000).getInt();
+		halfTicksPerDay = ticksPerDay/2;
 		
 		/*
 		 * Fatigue
@@ -266,7 +271,7 @@ public class CommonProxy
 				return;
 			}
 			
-			if (!enterSleepPeriod.isTimeWithin(event.entityPlayer.worldObj.getWorldTime() % 24000))
+			if (!enterSleepPeriod.isTimeWithin(event.entityPlayer.worldObj.getWorldTime() % Somnia.proxy.ticksPerDay))
 			{
 				event.result = EnumStatus.NOT_POSSIBLE_NOW;
 				return;

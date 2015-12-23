@@ -24,7 +24,7 @@ public enum SomniaState
 		/*if (handler.currentState != ACTIVE && handler.lastSleepStart > 0 && totalWorldTime-handler.lastSleepStart < Somnia.proxy.sleepCooldown)
 			return COOLDOWN;*/
 		
-		if (!Somnia.proxy.validSleepPeriod.isTimeWithin(totalWorldTime % 24000))
+		if (!Somnia.proxy.validSleepPeriod.isTimeWithin(totalWorldTime % Somnia.proxy.ticksPerDay))
 			return NOT_NOW;
 		
 		if (handler.worldServer.playerEntities.isEmpty())

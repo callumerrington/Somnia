@@ -96,7 +96,7 @@ public class Somnia
 	{
 		time += 6000; // Tick -> Time offset
 		
-		time = time % 24000;
+		time = time % Somnia.proxy.ticksPerDay;
 		int hours = (int) Math.floor(time / (double)1000);
 		int minutes = (int) ((time % 1000) / 1000.0d * 60);
 		
@@ -125,10 +125,10 @@ public class Somnia
 	public static long calculateWakeTime(long totalWorldTime, int i)
 	{
 		long l;
-		long timeInDay = totalWorldTime % 24000l;
+		long timeInDay = totalWorldTime % Somnia.proxy.ticksPerDay;
 		l = totalWorldTime - timeInDay + i;
 		if (timeInDay > i)
-			l += 24000l;
+			l += Somnia.proxy.ticksPerDay;
 		return l;
 	}
 
