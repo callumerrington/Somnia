@@ -11,6 +11,7 @@ import java.util.HashMap;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.world.World;
 
 import com.kingrunes.somnia.Somnia;
 import com.kingrunes.somnia.server.Profiler;
@@ -201,7 +202,7 @@ public class PacketHandler
         return null;
 	}
 	
-	public static FMLProxyPacket buildProfilerResultPacket(int type, boolean dataless)
+	public static FMLProxyPacket buildProfilerResultPacket(int type, World world)
 	{
 		ByteBufOutputStream bbos = unpooled();
 		
@@ -209,8 +210,8 @@ public class PacketHandler
         {
         	bbos.writeByte(0x03);
         	bbos.writeByte((byte)type);
-        	if (!dataless)
-        		Profiler.instance().writeResultTo(type, bbos);
+        	if (world != null)
+        		Profiler.instance().writeResultTo(type, bbos, world);
         	
         	return new FMLProxyPacket(bbos.buffer(), Somnia.MOD_ID);
         }

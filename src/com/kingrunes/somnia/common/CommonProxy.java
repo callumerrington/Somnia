@@ -264,15 +264,13 @@ public class CommonProxy
 			SomniaEntityPlayerProperties props = SomniaEntityPlayerProperties.get(event.entityPlayer);
 			if (props != null && props.getFatigue() < minimumFatigueToSleep)
 			{
-				event.result = EnumStatus.OTHER_PROBLEM;
-				event.entityPlayer.addChatMessage(new ChatComponentTranslation("somnia.status.cooldown"));
-				return;
-			}
-			
-			if (!enterSleepPeriod.isTimeWithin(event.entityPlayer.worldObj.getWorldTime() % Somnia.proxy.ticksPerDay))
-			{
-				event.result = EnumStatus.NOT_POSSIBLE_NOW;
-				return;
+				if (!enterSleepPeriod.isTimeWithin(event.entityPlayer.worldObj.getWorldTime() % Somnia.proxy.ticksPerDay))
+				{
+//					event.result = EnumStatus.NOT_POSSIBLE_NOW;
+					event.result = EnumStatus.OTHER_PROBLEM;
+					event.entityPlayer.addChatMessage(new ChatComponentTranslation("somnia.status.cooldown"));
+					return;
+				}
 			}
 			
 			if (!sleepWithArmor && Somnia.doesPlayHaveAnyArmor(event.entityPlayer))

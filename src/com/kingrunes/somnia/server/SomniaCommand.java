@@ -114,13 +114,13 @@ public class SomniaCommand extends CommandBase
 			{
 				if (args[1].equals("start"))
 				{
-					Profiler.instance().enable(((EntityPlayerMP)sender).worldObj);
-					sender.addChatMessage(new ChatComponentText("Profiling has been enabled!"));
+					if (Profiler.instance().enable(sender))
+						sender.addChatMessage(new ChatComponentText("Profiling has been enabled!"));
 				}
 				else if (args[1].equals("stop"))
 				{
-					Profiler.instance().disable(sender);
-					sender.addChatMessage(new ChatComponentText("Profiling has been disabled!"));
+					if (Profiler.instance().disable(sender))
+						sender.addChatMessage(new ChatComponentText("Profiling has been disabled!"));
 				}
 				else if (args[1].equals("clear"))
 				{

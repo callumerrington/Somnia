@@ -67,9 +67,11 @@ public class PatcherWorld extends AbstractPatcher
         {
         	System.out.println("[Somnia] [PatcherWorld] Found patching index in World");
         	int idx = m.instructions.indexOf(min);
-        	MethodInsnNode tileTickStart = new MethodInsnNode(Opcodes.INVOKESTATIC, "com/kingrunes/somnia/server/Profiler", "_tileTickStart", "()V", false);
-        	m.instructions.insertBefore(m.instructions.get(idx-1), tileTickStart);
         	InsnList il1 = new InsnList();
+        	il1.add(new VarInsnNode(Opcodes.ALOAD, 8));
+        	il1.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/kingrunes/somnia/server/Profiler", "_tileTickStart", "(Lnet/minecraft/tileentity/TileEntity;)V", false));
+        	m.instructions.insertBefore(m.instructions.get(idx-1), il1);
+        	il1 = new InsnList();
         	il1.add(new VarInsnNode(Opcodes.ALOAD, 8));
         	il1.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/kingrunes/somnia/server/Profiler", "_tileTickEnd", "(Lnet/minecraft/tileentity/TileEntity;)V", false));
         	m.instructions.insert(min, il1);
