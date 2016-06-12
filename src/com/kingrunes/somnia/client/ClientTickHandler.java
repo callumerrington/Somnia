@@ -178,7 +178,6 @@ public class ClientTickHandler
 		{
 			te = (TileEntity)teObj;
 			tickTime = ClassUtils.getTileEntityTime(te);
-//			System.out.println("tt=" + tickTime);
 			if (tickTime == 0L)
 				continue;
 			ratio = (float) (2*Math.min(1-(ClientProxy.meanPR/tickTime), 1.0D));
