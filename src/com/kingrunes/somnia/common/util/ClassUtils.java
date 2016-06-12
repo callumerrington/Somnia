@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.launchwrapper.Launch;
+import net.minecraft.tileentity.TileEntity;
 
 public class ClassUtils
 {
@@ -80,4 +81,14 @@ public class ClassUtils
 			t.printStackTrace();
 		}
 	}
+	
+	/*
+	 * ASM injected methods
+	 */
+	
+	public static long getTileEntityTime(TileEntity te) {return 0l;}
+	public static void setTileEntityTime(TileEntity te, long tickTime) {}
+	
+	public static int getTileEntityTickCount(TileEntity te) {return 0;}
+	public static void setTileEntityTickCount(TileEntity te, int tickCount) {}
 }

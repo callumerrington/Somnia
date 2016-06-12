@@ -3,16 +3,16 @@ package com.kingrunes.somnia.server;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
+import com.kingrunes.somnia.Somnia;
+import com.kingrunes.somnia.common.util.ListUtils;
+import com.kingrunes.somnia.common.util.SomniaEntityPlayerProperties;
+
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
-
-import com.kingrunes.somnia.Somnia;
-import com.kingrunes.somnia.common.util.ListUtils;
-import com.kingrunes.somnia.common.util.SomniaEntityPlayerProperties;
 
 public class SomniaCommand extends CommandBase
 {
@@ -36,7 +36,7 @@ public class SomniaCommand extends CommandBase
 	@Override
 	public int getRequiredPermissionLevel()
 	{
-		return 3;
+		return 2;
 	}
 
 	@Override
@@ -105,6 +105,30 @@ public class SomniaCommand extends CommandBase
 			else
 				throw new WrongUsageException(getCommandUsage(sender));
 			
+		}
+		else if (args[0].equalsIgnoreCase("profile"))
+		{
+			if (!(sender instanceof EntityPlayerMP))
+				throw new WrongUsageException("Only ingame players can use this command (for now)");
+			if (args.length >= 2)
+			{
+				if (args[1].equals("start"))
+				{
+					Profiler.instance().enable(((EntityPlayerMP)sender).worldObj);
+					sender.addChatMessage(new ChatComponentText("Profiling has been enabled!"));
+				}
+				else if (args[1].equals("stop"))
+				{
+					Profiler.instance().disable(sender);
+					sender.addChatMessage(new ChatComponentText("Profiling has been disabled!"));
+				}
+				else if (args[1].equals("clear"))
+				{
+					Profiler.clearClient(sender);
+				}
+			}
+			else
+				throw new WrongUsageException(String.format(COMMAND_USAGE_FORMAT, COMMAND_NAME, COMMAND_USAGE_CONSOLE));
 		}
 	}
 }

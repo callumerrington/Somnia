@@ -9,6 +9,12 @@ import static com.kingrunes.somnia.common.util.SomniaState.WAITING_PLAYERS;
 import java.util.Iterator;
 import java.util.List;
 
+import com.kingrunes.somnia.Somnia;
+import com.kingrunes.somnia.common.PacketHandler;
+import com.kingrunes.somnia.common.util.SomniaState;
+
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.network.internal.FMLProxyPacket;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.play.server.S03PacketTimeUpdate;
@@ -16,16 +22,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.world.WorldServer;
-
-import com.kingrunes.somnia.Somnia;
-import com.kingrunes.somnia.common.CommonProxy;
-import com.kingrunes.somnia.common.PacketHandler;
-import com.kingrunes.somnia.common.util.SomniaState;
-
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.gameevent.TickEvent;
-import cpw.mods.fml.common.gameevent.TickEvent.Phase;
-import cpw.mods.fml.common.network.internal.FMLProxyPacket;
 
 public class ServerTickHandler
 {
@@ -58,7 +54,6 @@ public class ServerTickHandler
 			
 			SomniaState prevState = currentState;
 			currentState = SomniaState.getState(this);
-			
 			
 			if (prevState != currentState)
 			{

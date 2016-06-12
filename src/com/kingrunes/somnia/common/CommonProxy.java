@@ -6,9 +6,19 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
+import com.kingrunes.somnia.Somnia;
+import com.kingrunes.somnia.SomniaVersion;
+import com.kingrunes.somnia.SomniaVersion.UpdateCheckerEntry;
+import com.kingrunes.somnia.common.util.ClassUtils;
+import com.kingrunes.somnia.common.util.SomniaEntityPlayerProperties;
+import com.kingrunes.somnia.common.util.TimePeriod;
+import com.kingrunes.somnia.server.ForgeEventHandler;
+import com.kingrunes.somnia.server.ServerTickHandler;
+
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.monster.EntityMob;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayer.EnumStatus;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.AxisAlignedBB;
@@ -21,18 +31,6 @@ import net.minecraftforge.common.config.Property;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.world.WorldEvent;
-
-import com.kingrunes.somnia.Somnia;
-import com.kingrunes.somnia.SomniaVersion;
-import com.kingrunes.somnia.SomniaVersion.UpdateCheckerEntry;
-import com.kingrunes.somnia.common.util.ClassUtils;
-import com.kingrunes.somnia.common.util.SomniaEntityPlayerProperties;
-import com.kingrunes.somnia.common.util.TimePeriod;
-import com.kingrunes.somnia.server.ForgeEventHandler;
-import com.kingrunes.somnia.server.ServerTickHandler;
-
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 public class CommonProxy
 {
@@ -48,8 +46,8 @@ public class CommonProxy
 						multiplierCap;
 	
 	public boolean 		fatigueSideEffects,
-						tpsGraph,
-						secondsOnGraph,
+						enableProfiling,
+						playersCanProfile,
 						sleepWithArmor,
 						vanillaBugFixes,
 						fading,
@@ -115,9 +113,9 @@ public class CommonProxy
 		
 		/*
 		 * Profiling (Not implemented)
-		secondsOnGraph = config.get("profiling", "secondsOnGraph", 30).getInt();
-		tpsGraph = config.get("profiling", "tpsGraph", false).getBoolean(false);
 		*/
+		enableProfiling = config.get("profiling", "enableProfiling", true).getBoolean(true);
+		playersCanProfile = config.get("profiling", "playersCanProfile", false).getBoolean(false);
 		
 		/*
 		 * Options
@@ -158,7 +156,7 @@ public class CommonProxy
 	 */
 	public boolean shouldCheckForUpdates()
 	{
-		return checkForUpdates && (FMLCommonHandler.instance().getEffectiveSide().isClient() != getClass().equals(CommonProxy.class)) && System.currentTimeMillis()-lastUpdateCheck > 3600000l;
+		return checkForUpdates  && (FMLCommonHandler.instance().getEffectiveSide().isClient() != getClass().equals(CommonProxy.class)) && System.currentTimeMillis()-lastUpdateCheck > 3600000l;
 	}
 	
 	private void checkForUpdates()
@@ -374,7 +372,7 @@ public class CommonProxy
 	 * The following methods are implemented client-side only
 	 */
 	
-	public void handleGUIOpenPacket() throws IOException
+	public void handleGUIOpenPacket()
 	{}
 
 	public void handlePropUpdatePacket(DataInputStream in) throws IOException
@@ -383,4 +381,6 @@ public class CommonProxy
 	public void handleGUIClosePacket(EntityPlayerMP player)
 	{}
 
+	public void handleProfilerResultPacket(DataInputStream in) throws IOException
+	{}
 }

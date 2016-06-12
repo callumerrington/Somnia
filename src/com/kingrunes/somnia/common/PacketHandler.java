@@ -13,6 +13,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
 
 import com.kingrunes.somnia.Somnia;
+import com.kingrunes.somnia.server.Profiler;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.network.FMLNetworkEvent.ClientCustomPacketEvent;
@@ -52,11 +53,13 @@ public class PacketHandler
 				handleGUIOpenPacket();
 				break;
 			case 0x01:
-				handleGUIClosePacket(player, in);
+				handleGUIClosePacket(player);
 				break;
 			case 0x02:
 				handlePropUpdatePacket(in);
 				break;
+			case 0x03:
+				handleProfilerResultPacket(in);
 			}
 		}
 		catch (IOException e)
@@ -66,7 +69,7 @@ public class PacketHandler
 	}
 
 	// CLIENT
-	private void handleGUIOpenPacket() throws IOException
+	private void handleGUIOpenPacket()
 	{
 		Somnia.proxy.handleGUIOpenPacket();
 	}
@@ -76,10 +79,14 @@ public class PacketHandler
 		Somnia.proxy.handlePropUpdatePacket(in);
 	}
 	
-	
-	private void handleGUIClosePacket(EntityPlayerMP player, DataInputStream in) throws IOException
+	private void handleGUIClosePacket(EntityPlayerMP player)
 	{
 		Somnia.proxy.handleGUIClosePacket(player);
+	}
+	
+	private void handleProfilerResultPacket(DataInputStream in) throws IOException
+	{
+		Somnia.proxy.handleProfilerResultPacket(in);
 	}
 	//
 	
@@ -179,6 +186,31 @@ public class PacketHandler
         		bbos.writeByte((Integer) fields[i]);
         		StreamUtils.writeObject(fields[++i], bbos);
         	}
+        	
+        	return new FMLProxyPacket(bbos.buffer(), Somnia.MOD_ID);
+        }
+        catch (IOException ioe)
+        {
+        	ioe.printStackTrace();
+        }
+        finally
+        {
+        	close(bbos);
+        }
+        
+        return null;
+	}
+	
+	public static FMLProxyPacket buildProfilerResultPacket(int type, boolean dataless)
+	{
+		ByteBufOutputStream bbos = unpooled();
+		
+        try
+        {
+        	bbos.writeByte(0x03);
+        	bbos.writeByte((byte)type);
+        	if (!dataless)
+        		Profiler.instance().writeResultTo(type, bbos);
         	
         	return new FMLProxyPacket(bbos.buffer(), Somnia.MOD_ID);
         }

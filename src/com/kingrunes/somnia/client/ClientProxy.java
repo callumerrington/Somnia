@@ -2,7 +2,11 @@ package com.kingrunes.somnia.client;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
+
+import org.lwjgl.Sys;
 
 import net.minecraft.block.BlockBed;
 import net.minecraft.client.Minecraft;
@@ -11,6 +15,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -20,6 +25,8 @@ import com.kingrunes.somnia.Somnia;
 import com.kingrunes.somnia.client.gui.GuiSelectWakeTime;
 import com.kingrunes.somnia.client.gui.GuiSomnia;
 import com.kingrunes.somnia.common.CommonProxy;
+import com.kingrunes.somnia.common.util.ClassUtils;
+import com.kingrunes.somnia.common.util.StatsUtils;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -30,13 +37,18 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class ClientProxy extends CommonProxy
 {
 	public static double playerFatigue = -1;
+	public static boolean renderPR = false;
+	public static long rangePR;
+	public static double meanPR;
 	
 	@Override
 	public void register()
 	{
 		super.register();
 		MinecraftForge.EVENT_BUS.register(this);
-		FMLCommonHandler.instance().bus().register(new ClientTickHandler());
+		ClientTickHandler cth = new ClientTickHandler();
+		MinecraftForge.EVENT_BUS.register(cth);
+		FMLCommonHandler.instance().bus().register(cth);
 	}
 
 	@Override
@@ -96,7 +108,7 @@ public class ClientProxy extends CommonProxy
 	}
 	
 	@Override
-	public void handleGUIOpenPacket() throws IOException
+	public void handleGUIOpenPacket()
 	{
 		if (somniaGui)
 			Minecraft.getMinecraft().displayGuiScreen(new GuiSomnia());
@@ -139,5 +151,43 @@ public class ClientProxy extends CommonProxy
 	public void handleGUIClosePacket(EntityPlayerMP player)
 	{
 		Minecraft.getMinecraft().displayGuiScreen(null);
+	}
+
+	@Override
+	public void handleProfilerResultPacket(DataInputStream in) throws IOException
+	{
+		Minecraft mc = Minecraft.getMinecraft();
+		byte type = in.readByte();
+		int n, x, y, z;
+		TileEntity te;
+		
+		switch (type)
+		{
+		case 0x00:
+			n = in.readInt();
+			System.out.println("[Somnia] [DEBUG] Got profile result packet containing info on " + n + " tiles");
+			List<Long> tickTimeVals = new ArrayList<Long>();
+			for (int i=0; i<n; i++)
+			{
+				x = in.readInt();
+				y = in.readInt();
+				z = in.readInt();
+				te = mc.theWorld.getTileEntity(x, y, z);
+				if (te != null)
+				{
+					long tickTime = in.readLong();
+					tickTimeVals.add(tickTime);
+					ClassUtils.setTileEntityTime(te, tickTime);
+				}
+			}
+			StatsUtils.sortl(tickTimeVals);
+			rangePR = StatsUtils.rangel(tickTimeVals);
+			meanPR = StatsUtils.meanl(tickTimeVals);
+			renderPR = true;
+			break;
+		case 0x01:
+			renderPR = false;
+			break;
+		}
 	}
 }
